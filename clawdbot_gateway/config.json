@@ -17,7 +17,7 @@
   "panel_admin": false,
   "hassio_api": true,
   "homeassistant_api": true,
-  "watchdog": "tcp://localhost:18789",
+  "watchdog": "tcp://[HOST]:18789",
   "backup": "hot",
   "backup_exclude": [
     "source/clawdbot-src/.git",
