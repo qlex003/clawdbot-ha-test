@@ -1,0 +1,43 @@
+{
+  "name": "Clawdbot Gateway",
+  "version": "0.2.14",
+  "slug": "clawdbot_gateway",
+  "description": "Clawdbot Gateway (SSH-tunneled, HA add-on)",
+  "url": "https://github.com/ngutman/clawdbot-ha-addon",
+  "documentation": "https://github.com/ngutman/clawdbot-ha-addon",
+  "arch": ["aarch64", "armv7", "amd64"],
+  "startup": "services",
+  "boot": "auto",
+  "host_network": true,
+  "hassio_api": false,
+  "homeassistant_api": false,
+  "map": ["config:rw"],
+  "environment": {
+    "HOME": "/config/clawdbot",
+    "GH_CONFIG_DIR": "/config/clawdbot/.config/gh"
+  },
+  "options": {
+    "port": 18789,
+    "verbose": false,
+    "log_format": "pretty",
+    "log_color": false,
+    "log_fields": "",
+    "repo_url": "https://github.com/clawdbot/clawdbot.git",
+    "branch": "",
+    "github_token": "",
+    "ssh_port": 2222,
+    "ssh_authorized_keys": ""
+  },
+  "schema": {
+    "port": "int(1,65535)",
+    "verbose": "bool",
+    "log_format": "str",
+    "log_color": "bool",
+    "log_fields": "str?",
+    "repo_url": "str",
+    "branch": "str?",
+    "github_token": "password?",
+    "ssh_port": "int(1,65535)",
+    "ssh_authorized_keys": "str?"
+  }
+}
