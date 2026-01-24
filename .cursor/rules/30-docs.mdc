@@ -1,0 +1,20 @@
+---
+description: "Dokumentationsregeln für alle Markdown-Dateien."
+globs:
+  - "**/*.md"
+alwaysApply: false
+---
+
+## Doku-Konsistenz
+- Doku muss die tatsächliche Add-on-Konfiguration widerspiegeln.
+  - **Source of Truth** für Add-on Optionen: `clawdbot_gateway/config.json`.
+- Wenn Verhalten/Optionen/Default-Werte geändert werden, die betroffene Doku **immer** mitziehen.
+
+## Beispiele & Sicherheit
+- Niemals echte Keys/Tokens/Passwörter in Beispiele schreiben.
+  - Verwende Platzhalter wie `sk-ant-...`, `YOUR-HA-IP`, `YOUR-BOT-TOKEN`.
+- Klare, kurze Beispiele bevorzugen (copy-paste-freundlich).
+
+## Sprache
+- Dokumentation auf Deutsch schreiben (ausgenommen exakte Tool-/Command-Ausgaben oder Upstream-Zitate).
+

@@ -1,0 +1,14 @@
+---
+description: "Release/Änderungs-Workflow (Changelog, Tests, Multi-Arch) – bei Bedarf anwenden."
+alwaysApply: false
+---
+
+## Wenn du Verhalten änderst (Feature/Fix/Refactor)
+- Betroffene Dokumentation aktualisieren (mindestens `README.md`, ggf. `CONFIGURATION.md`, `INSTALLATION.md`, `TROUBLESHOOTING.md`).
+- `clawdbot_gateway/CHANGELOG.md` pflegen, wenn Nutzer- oder Add-on-Verhalten/Optionen beeinflusst werden.
+- Multi-Arch/Build-Impact bedenken (amd64/arm64/armv7), speziell bei `Dockerfile` und `run.sh`.
+
+## Commits
+- Conventional Commits befolgen (siehe `CLAUDE.md`).
+- Commit-Message sollte den Zweck/Why klar machen (nicht nur „what“).
+

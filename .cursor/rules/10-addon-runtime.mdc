@@ -1,0 +1,25 @@
+---
+description: "Regeln für Add-on Runtime (run.sh) und Build-Image (Dockerfile)."
+globs:
+  - "clawdbot_gateway/run.sh"
+  - "clawdbot_gateway/Dockerfile"
+alwaysApply: false
+---
+
+## Grundsatz
+- Diese Dateien sind **kritisch für Stabilität/Updates/Snapshots**. Änderungen nur mit klarer Begründung und minimalem Scope.
+
+## run.sh
+- Update-/Rollback-/Snapshot-Logik **nicht entfernen oder vereinfachen**, außer du kannst nachweisen, dass das Verhalten gleich bleibt.
+- Signal-Handling (USR1/TERM/INT) beibehalten; Restart-Loop bewusst behandeln.
+- Persistent Storage Layout unter `/config/clawdbot` respektieren (data/cache/.meta/source).
+- Logging/Formatierung nicht brechen (Logfile + jq-Formatierung).
+
+## Dockerfile
+- Multi-Arch Anforderungen beachten (`amd64`, `arm64/aarch64`, `armv7`).
+- Version-Pinning respektieren (ARGs für Node/Bun/pnpm/gog).
+- Keine unnötigen Duplicate-Installs einführen; Image klein halten (apt cleanup).
+
+@clawdbot_gateway/run.sh
+@clawdbot_gateway/Dockerfile
+
