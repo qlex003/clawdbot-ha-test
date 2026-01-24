@@ -7,6 +7,23 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [1.0.2] - 2026-01-25
+
+### Fixed
+- **Docker Build**: Fixed build failure due to missing gogcli binaries
+  - gogcli installation now conditional (amd64, arm64 only)
+  - armv7 builds succeed with Google Workspace features unavailable
+  - Upgraded gogcli to v0.9.0 (latest stable version)
+  - No impact on amd64/arm64 functionality
+- **Documentation**: Clarified that Google Workspace integration (gogcli) requires amd64 or arm64
+
+### Technical Details
+- Upstream gogcli only provides binaries for amd64 and arm64
+- armv7 support maintained for core Clawdbot functionality
+- Build process now gracefully handles missing optional dependencies
+
+---
+
 ## [1.0.0] - 2026-01-24
 
 ### 🎉 Production Release

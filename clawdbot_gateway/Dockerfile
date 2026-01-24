@@ -1,6 +1,6 @@
 # Version-Pinning für reproduzierbare Builds
 ARG NODE_VERSION=24
-ARG GOG_VERSION=0.6.1
+ARG GOG_VERSION=0.9.0
 ARG BUN_VERSION=1.1.38
 ARG PNPM_VERSION=9.15.2
 ARG TARGETARCH
@@ -54,11 +54,15 @@ RUN npm install -g bun@${BUN_VERSION} typescript pnpm@${PNPM_VERSION} \
 RUN pip3 install --no-cache-dir --break-system-packages homeassistant-cli
 
 # Install gog CLI (Google Workspace: Gmail, Calendar, Drive, Contacts, Sheets, Docs)
-# Multi-Arch Support verbessert: amd64, arm64, armv7
+# Multi-Arch Support: amd64, arm64 (armv7 not available from upstream)
 RUN ARCH=$(echo ${TARGETARCH:-$(uname -m)} | sed 's/aarch64/arm64/;s/x86_64/amd64/;s/armv7l/armv7/') \
-  && curl -fsSL "https://github.com/steipete/gogcli/releases/download/v${GOG_VERSION}/gogcli_${GOG_VERSION}_linux_${ARCH}.tar.gz" \
-     | tar xz -C /usr/local/bin gog \
-  && chmod +x /usr/local/bin/gog
+  && if [ "${ARCH}" = "amd64" ] || [ "${ARCH}" = "arm64" ]; then \
+       curl -fsSL "https://github.com/steipete/gogcli/releases/download/v${GOG_VERSION}/gogcli_${GOG_VERSION}_linux_${ARCH}.tar.gz" \
+         | tar xz -C /usr/local/bin gog \
+       && chmod +x /usr/local/bin/gog; \
+     else \
+       echo "gogcli not available for ${ARCH}, skipping installation"; \
+     fi
 
 WORKDIR /opt/clawdbot
 

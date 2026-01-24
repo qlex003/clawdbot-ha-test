@@ -15,6 +15,8 @@
 - ✅ **Native Home Assistant Integration** — Ingress support, Sidebar Panel, and Notifications
 - ✅ **Structured Persistent Storage** — Organized data, cache, and version management
 - ✅ **Multi-Architecture Support** — Works on amd64, arm64, and armv7 (Raspberry Pi!)
+  - Full functionality on amd64 and arm64
+  - Core features on armv7 (Google Workspace integration unavailable)
 - ✅ **Smart Version Management** — Keep multiple versions cached for quick rollback
 - ✅ **Optionaler SSH-Zugriff (Key-based)** — Für Debug/CLI-Zugriff bei Bedarf (standardmäßig aus)
 - ✅ **Comprehensive Tooling** — Includes Node.js, Bun, pnpm, TypeScript, GitHub CLI, gog CLI
