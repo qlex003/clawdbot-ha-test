@@ -1,16 +1,30 @@
 {
   "name": "Clawdbot Gateway",
-  "version": "0.2.14",
+  "version": "1.0.0",
   "slug": "clawdbot_gateway",
-  "description": "Clawdbot Gateway (SSH-tunneled, HA add-on)",
-  "url": "https://github.com/ngutman/clawdbot-ha-addon",
-  "documentation": "https://github.com/ngutman/clawdbot-ha-addon",
+  "description": "Clawdbot Gateway (Home Assistant Add-on)",
+  "url": "https://github.com/Al3xand3r1987/clawdbot-ha",
+  "documentation": "https://github.com/Al3xand3r1987/clawdbot-ha",
   "arch": ["aarch64", "armv7", "amd64"],
   "startup": "services",
   "boot": "auto",
   "host_network": true,
-  "hassio_api": false,
-  "homeassistant_api": false,
+  "ingress": true,
+  "ingress_port": 0,
+  "ingress_entry": "/",
+  "panel_icon": "mdi:robot",
+  "panel_title": "Clawdbot",
+  "panel_admin": false,
+  "hassio_api": true,
+  "homeassistant_api": true,
+  "watchdog": "tcp://localhost:18789",
+  "backup": "hot",
+  "backup_exclude": [
+    "source/clawdbot-src/.git",
+    "source/clawdbot-src/node_modules",
+    ".npm",
+    ".cache"
+  ],
   "map": ["config:rw"],
   "environment": {
     "HOME": "/config/clawdbot",
@@ -26,7 +40,11 @@
     "branch": "",
     "github_token": "",
     "ssh_port": 2222,
-    "ssh_authorized_keys": ""
+    "ssh_authorized_keys": "",
+    "update_mode": "stable",
+    "pinned_version": "",
+    "auto_cleanup_versions": true,
+    "max_cached_versions": 2
   },
   "schema": {
     "port": "int(1,65535)",
@@ -38,6 +56,10 @@
     "branch": "str?",
     "github_token": "password?",
     "ssh_port": "int(1,65535)",
-    "ssh_authorized_keys": "str?"
+    "ssh_authorized_keys": "str?",
+    "update_mode": "list(disabled|notify|stable|latest)?",
+    "pinned_version": "str?",
+    "auto_cleanup_versions": "bool?",
+    "max_cached_versions": "int(1,10)?"
   }
 }

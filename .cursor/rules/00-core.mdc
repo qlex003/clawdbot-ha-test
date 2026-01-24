@@ -1,0 +1,24 @@
+---
+description: "Globale Projektregeln (Sprache, Safety, Workflow, Commits)."
+alwaysApply: true
+---
+
+## Sprache
+- Antworte **immer auf Deutsch** (außer exakte Zitate/Code erfordern Englisch).
+
+## Sicherheit & Daten
+- **Keine Secrets** committen oder in Beispielen verwenden (API Keys, Tokens, Passwörter).
+- Keine destruktiven Git-Aktionen (force push, hard reset, history rewrite) ohne explizite Anweisung.
+
+## Projektstruktur (Source of Truth)
+- Add-on Source: `clawdbot_gateway/`
+- Add-on Konfiguration: `clawdbot_gateway/config.json`
+- Startup/Runtime: `clawdbot_gateway/run.sh`
+- HA Repository Metadaten: `repository.json`
+
+## Workflow / Commits
+- Commit Messages nach Conventional Commits (z. B. `feat(component): ...`, `fix(component): ...`, `docs: ...`).
+- Änderungen sollen zielgerichtet sein und Doku/Changelog mitziehen, wenn Verhalten/Optionen sich ändern.
+
+@CLAUDE.md
+

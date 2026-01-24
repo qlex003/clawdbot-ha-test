@@ -1,0 +1,23 @@
+---
+description: "Regeln für Add-on Metadaten/Optionen (config.json) und Repository-Metadaten."
+globs:
+  - "clawdbot_gateway/config.json"
+  - "repository.json"
+alwaysApply: false
+---
+
+## config.json (HA Add-on Manifest)
+- `options` und `schema` **immer konsistent** halten:
+  - Neue Option → `options` Default + passendes `schema`.
+  - Option entfernen/umbenennen → beide Seiten anpassen.
+- **Keine Secrets als Defaults** (Tokens/Keys leer lassen, Beispiele nur als Platzhalter).
+- Rückwärtskompatibilität beachten (bestehende Keys möglichst nicht brechen).
+- Bei Änderungen an Options/Schema: Doku aktualisieren (`README.md`, `CONFIGURATION.md`, ggf. `INSTALLATION.md`/`TROUBLESHOOTING.md`).
+
+## repository.json
+- Minimal halten und URL/Maintainer korrekt.
+- Änderungen nur wenn Repo-URL/Name/Maintainer wirklich geändert werden.
+
+@clawdbot_gateway/config.json
+@repository.json
+
