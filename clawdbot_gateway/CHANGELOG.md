@@ -78,6 +78,14 @@ First production-ready release with comprehensive features, stability improvemen
 - **Removed**: Duplicate GitHub CLI installation
 - **Enhanced**: Multi-architecture support
   - Added explicit armv7 support
+
+---
+
+## [1.0.1] - 2026-01-24
+
+### Added
+- **Optional Ingress Setup UI (no SSH)**: `easy_setup_ui` adds `/__setup/` to run the Clawdbot wizard (OpenAI Codex/ChatGPT OAuth) and store API keys (OpenAI/Anthropic) via `.env`.
+- **Ingress reverse proxy**: Ingress entry now targets a lightweight proxy on `127.0.0.1:8099` which forwards HTTP + WebSocket to the gateway port.
   - Improved TARGETARCH detection
   - Optimized gog CLI installation
 - **Added**: Version pinning for all major dependencies
