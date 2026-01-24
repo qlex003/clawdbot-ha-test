@@ -1,139 +1,140 @@
-# Clawdbot HA Add-on - Installation Guide
+# Clawdbot HA Add-on – Installationsanleitung
 
-Complete step-by-step installation guide for the Clawdbot Home Assistant Add-on.
+Komplette Schritt-für-Schritt-Anleitung zur Installation des **Clawdbot Gateway** Home-Assistant Add-ons.
 
 ---
 
-## Prerequisites
+## Voraussetzungen
 
-Before installing the Clawdbot add-on, ensure you have:
+Bevor du das Clawdbot Add-on installierst, stelle Folgendes sicher:
 
-- **Home Assistant OS** or **Home Assistant Supervised** installation
-- **At least 2GB free disk space** (for builds and caching)
-- **Optional:** SSH access (nur wenn du Debug/CLI im Container brauchst)
-- **Anthropic API Key** (get one from [console.anthropic.com](https://console.anthropic.com))
+- **Home Assistant OS** oder **Home Assistant Supervised**
+- **Mindestens 2 GB freier Speicherplatz** (Builds & Cache)
+- **Optional:** SSH-Zugriff (nur wenn du Debug/CLI im Container brauchst)
+- **Anthropic API Key** (erhältst du über [console.anthropic.com](https://console.anthropic.com))
 
-### Supported Architectures
+### Unterstützte Architekturen
 
 - `amd64` (Intel/AMD 64-bit)
-- `arm64` (ARM 64-bit, e.g., Raspberry Pi 4/5)
-- `armv7` (ARM 32-bit, e.g., Raspberry Pi 3)
+- `aarch64` (ARM 64-bit, z. B. Raspberry Pi 4/5)
+- `armv7` (ARM 32-bit, z. B. Raspberry Pi 3)
 
 ---
 
-## Installation Steps
+## Installation
 
-### Step 1: Add Repository to Home Assistant
+### Schritt 1: Repository in Home Assistant hinzufügen
 
-1. Open your **Home Assistant UI**
-2. Navigate to **Settings → Add-ons → Add-on Store**
-3. Click the **⋮** (three dots) in the top right corner
-4. Select **Repositories**
-5. Add this repository URL:
+1. Öffne deine **Home Assistant UI**
+2. Gehe zu **Einstellungen → Add-ons → Add-on Store**
+3. Klicke oben rechts auf **⋮** (drei Punkte)
+4. Wähle **Repositories**
+5. Füge diese Repository-URL hinzu:
    ```
    https://github.com/Al3xand3r1987/clawdbot-ha
    ```
-6. Click **Add**
+6. Klicke **Hinzufügen**
 
-The repository should now appear in your add-on store.
+Das Repository sollte jetzt im Add-on Store erscheinen.
 
 ---
 
-### Step 2: Install the Clawdbot Gateway Add-on
+### Schritt 2: Clawdbot Gateway Add-on installieren
 
-1. In the **Add-on Store**, scroll down to find **"Clawdbot Gateway"**
-2. Click on the add-on
-3. Click **Install**
-4. Wait for the installation to complete (5-10 minutes)
-   - The initial build includes:
+1. Scrolle im **Add-on Store** nach unten und suche **„Clawdbot Gateway“**
+2. Öffne das Add-on
+3. Klicke **Installieren**
+4. Warte, bis die Installation abgeschlossen ist (typisch 5–10 Minuten)
+   - Der initiale Build beinhaltet u. a.:
      - Node.js, Bun, pnpm, TypeScript
      - GitHub CLI, gog CLI
-     - Clawdbot source code and dependencies
+     - Clawdbot Quellcode und Abhängigkeiten
 
 ---
 
-### Step 3: Configure the Add-on
+### Schritt 3: Add-on konfigurieren
 
-#### Basic Configuration
+#### Basis-Konfiguration
 
-1. After installation, go to the **Configuration** tab
-2. Set the following required options:
+1. Nach der Installation: öffne den Tab **Konfiguration**
+2. Setze mindestens diese Option (empfohlen):
 
 ```yaml
 update_mode: stable
 ```
 
-**Key Options:**
-- `update_mode`: How to handle updates (see [CONFIGURATION.md](CONFIGURATION.md))
+**Wichtige Option:**
+- `update_mode`: Update-Verhalten (siehe [CONFIGURATION.md](CONFIGURATION.md))
 
-#### Optional Configuration
+#### Optionale Konfiguration
 
 ```yaml
 easy_setup_ui: false  # Optional: Setup-Seite im Ingress unter /__setup/ (OAuth/API Keys ohne SSH)
-pinned_version: ""  # Optional: Pin to specific version
-max_cached_versions: 2  # Keep 2 versions cached
-auto_cleanup_versions: true  # Auto-cleanup old versions
-ssh_port: 2222  # Optional: SSH Port (nur relevant wenn SSH aktiv)
-ssh_authorized_keys: "ssh-ed25519 AAAA... user@host"  # Optional: SSH aktivieren (Key-based)
+pinned_version: ""  # Optional: auf eine bestimmte Version pinnen
+max_cached_versions: 2  # Wie viele Versionen im Cache behalten
+auto_cleanup_versions: true  # Alte Versionen automatisch entfernen
+ssh_port: 2222  # Optional: SSH-Port (nur relevant wenn SSH aktiv)
+ssh_authorized_keys: "ssh-ed25519 AAAA... user@host"  # Optional: SSH aktivieren (nur Public Key, kein Passwort)
 ```
 
-For a complete list of options, see [CONFIGURATION.md](CONFIGURATION.md).
+Eine vollständige Options-Liste findest du in [CONFIGURATION.md](CONFIGURATION.md).
 
 ---
 
-### Step 4: Start the Add-on
+### Schritt 4: Add-on starten
 
-1. Go to the **Info** tab
-2. Enable **Start on boot** (recommended)
-3. Enable **Watchdog** (optional, for auto-restart)
-4. Click **Start**
+1. Öffne den Tab **Info**
+2. Aktiviere **Start beim Booten** (empfohlen)
+3. Aktiviere **Watchdog** (optional, für automatischen Neustart)
+4. Klicke **Start**
 
-**First Start Process:**
-- Clones the Clawdbot repository
-- Installs all dependencies
-- Builds the Gateway and UI
-- May take **10-15 minutes** on first start
+**Beim ersten Start passiert Folgendes:**
+- Klonen/Initialisieren der Clawdbot-Quelle
+- Installation der Abhängigkeiten
+- Build von Gateway und UI
+- Kann beim ersten Start **10–15 Minuten** dauern (je nach Hardware)
 
-**Monitor the logs:**
-- Go to the **Log** tab
-- Watch for `[INFO] Clawdbot Gateway started on port 18789`
+**Logs beobachten:**
+- Öffne den Tab **Log**
+- Achte u. a. auf Hinweise wie `using version: ...` oder `setup proxy started ...`
+- Wichtig: Der Gateway-Port ist standardmäßig `18789` (siehe Option `port`)
 
 ---
 
-### Step 5: Access Clawdbot
+### Schritt 5: Clawdbot öffnen
 
-There are three ways to access Clawdbot:
+Es gibt drei Wege, Clawdbot zu öffnen:
 
-#### Option A: Web UI (Ingress) - Recommended
+#### Option A: Web UI (Ingress) – empfohlen
 
-1. Go to the **Info** tab of the add-on
-2. Click the **"OPEN WEB UI"** button
-3. The Clawdbot interface opens within Home Assistant
+1. Öffne den Tab **Info** des Add-ons
+2. Klicke **„OPEN WEB UI“**
+3. Die Clawdbot Oberfläche öffnet sich innerhalb von Home Assistant (Ingress)
 
-**Optional Setup (ohne SSH):** Wenn du `easy_setup_ui: true` setzt, kannst du im Ingress zusätzlich `/__setup/` öffnen (OAuth/API Keys).
+**Optionales Setup (ohne SSH):** Wenn du `easy_setup_ui: true` setzt, kannst du im Ingress zusätzlich `/__setup/` öffnen (OAuth/API Keys).
 
-**OR**
+**ODER**
 
-1. Check your **Home Assistant Sidebar**
-2. Look for the **Clawdbot icon** (robot icon)
-3. Click to open the interface
+1. Schau in deine **Home Assistant Sidebar**
+2. Suche nach dem **Clawdbot Icon** (Roboter)
+3. Klicke darauf, um die Oberfläche zu öffnen
 
-#### Option B: Direct Port Access
+#### Option B: Direkter Zugriff über Port
 
-Access Clawdbot directly via:
+Direkter Zugriff:
 ```
-http://YOUR-HA-IP:18789
+http://DEINE-HA-IP:18789
 ```
 
-#### Option C: SSH Configuration
+#### Option C: Konfiguration per SSH
 
-For command-line configuration:
+Für Konfiguration per Kommandozeile:
 
 ```bash
-# From your computer
-ssh -p 2222 root@YOUR-HA-IP
+# Von deinem Computer
+ssh -p 2222 root@DEINE-HA-IP
 
-# Inside the container
+# Im Container
 cd /config/clawdbot/data
 nano clawdbot.json
 ```
@@ -142,33 +143,35 @@ nano clawdbot.json
 
 ---
 
-### Step 6: Configure Anthropic API Key
+### Schritt 6: Anthropic API Key konfigurieren
 
-#### Via Setup UI (Ingress, ohne SSH) - Recommended
+#### Über Setup UI (Ingress, ohne SSH) – empfohlen
 
-1. Set `easy_setup_ui: true` in the add-on Configuration (optional, but recommended for first setup)
-2. Open the add-on Web UI (Ingress)
-3. Open `/__setup/`
-4. Paste your **Anthropic API Key** and click **Save**
+1. Setze in der Add-on Konfiguration `easy_setup_ui: true` (optional, aber fürs erste Setup sehr praktisch)
+2. Öffne die Add-on Web UI (Ingress)
+3. Öffne `/__setup/`
+4. Füge deinen **Anthropic API Key** ein und klicke **Speichern**
 
-#### Via Web UI (Easiest)
+**Hinweis:** Die Setup-Seite schreibt Keys nach `/config/clawdbot/data/state/.env` (nicht in `clawdbot.json`).
 
-1. Open the Clawdbot Web UI (see Step 5)
-2. Navigate to **Settings**
-3. Enter your **Anthropic API Key**
-4. Click **Save**
+#### Über Web UI (am einfachsten)
 
-#### Via SSH
+1. Öffne die Clawdbot Web UI (siehe Schritt 5)
+2. Gehe zu **Settings** (Einstellungen)
+3. Trage deinen **Anthropic API Key** ein
+4. Klicke **Save** (Speichern)
+
+#### Über SSH
 
 ```bash
-ssh -p 2222 root@YOUR-HA-IP
+ssh -p 2222 root@DEINE-HA-IP
 
-# Edit configuration
+# Konfiguration bearbeiten
 cd /config/clawdbot/data
 nano clawdbot.json
 ```
 
-Add your API key:
+API Key eintragen (Beispiel mit Platzhalter):
 ```json
 {
   "anthropic_api_key": "sk-ant-api03-your-key-here",
@@ -176,34 +179,41 @@ Add your API key:
 }
 ```
 
-Save and restart the add-on.
+Speichern und das Add-on neu starten.
 
 ---
 
-### Step 7: Verify Installation
+### Schritt 7: Installation prüfen
 
-1. **Check the logs:**
-   ```
-   ha addons logs local_clawdbot
-   ```
+1. **Logs prüfen:**
+   - Am einfachsten: Im Add-on UI den Tab **Log** öffnen.
+   - Per CLI (falls du Zugriff auf die HA CLI hast):
+     1. Add-ons auflisten und den exakten Slug/Identifier finden:
+        ```bash
+        ha addons list
+        ```
+     2. Dann Logs anzeigen:
+        ```bash
+        ha addons logs <ADDON_SLUG>
+        ```
 
-   Look for:
-   - `[INFO] Clawdbot Gateway started on port 18789`
-   - `[INFO] using version: v2026.1.24` (or similar)
-   - `[INFO] Server running at http://localhost:18789`
+   **Typische Hinweise in den Logs:**
+   - `using version: vYYYY.M.DD` (oder ähnlich)
+   - `setup proxy started ... bind=127.0.0.1:8099 ...`
+   - Optional (wenn SSH aktiviert): `sshd listening on ...`
 
-2. **Test the Web UI:**
-   - Click "OPEN WEB UI"
-   - You should see the Clawdbot interface
-   - Try a simple command: "Hello, Claude!"
+2. **Web UI testen:**
+   - Klicke **„OPEN WEB UI“**
+   - Du solltest die Clawdbot Oberfläche sehen
+   - Teste eine einfache Nachricht, z. B.: „Hallo, Claude!“
 
-3. **Check file structure:**
+3. **Dateistruktur prüfen:**
    ```bash
-   ssh -p 2222 root@YOUR-HA-IP
+   ssh -p 2222 root@DEINE-HA-IP
    ls -la /config/clawdbot/
    ```
 
-   You should see:
+   Du solltest ungefähr Folgendes sehen:
    ```
    drwxr-xr-x cache/
    drwxr-xr-x data/
@@ -213,91 +223,91 @@ Save and restart the add-on.
 
 ---
 
-## First Time Setup Checklist
+## Checkliste: Erstes Setup
 
-After installation, complete these steps:
+Nach der Installation solltest du Folgendes erledigen:
 
-- [ ] Add-on installed and started successfully
-- [ ] Web UI accessible via "OPEN WEB UI" button
-- [ ] Anthropic API key configured
-- [ ] Test message sent and received
-- [ ] (Optional) SSH access working (nur wenn aktiviert)
-- [ ] Snapshot/Backup created (recommended)
-
----
-
-## Update Strategy
-
-The add-on includes an **automatic update system** with the following modes:
-
-- **`stable` (default)**: Auto-updates to stable releases only
-- **`notify`**: Notifies you when updates are available (manual approval)
-- **`latest`**: Includes pre-releases (alpha, beta, rc)
-- **`disabled`**: No automatic updates
-
-Configure in the add-on **Configuration** tab via `update_mode`.
-
-For more details, see [CONFIGURATION.md](CONFIGURATION.md#update-modes).
+- [ ] Add-on installiert und erfolgreich gestartet
+- [ ] Web UI über **„OPEN WEB UI“** erreichbar
+- [ ] Anthropic API Key konfiguriert
+- [ ] Testnachricht gesendet und Antwort erhalten
+- [ ] (Optional) SSH-Zugriff funktioniert (nur wenn aktiviert)
+- [ ] Snapshot/Backup erstellt (empfohlen)
 
 ---
 
-## Next Steps
+## Update-Strategie
 
-After successful installation:
+Das Add-on enthält ein **automatisches Update-System** mit folgenden Modi:
 
-1. **Configure Telegram/WhatsApp** (optional)
-   - See [CONFIGURATION.md](CONFIGURATION.md#messaging-integrations)
+- **`stable` (Standard)**: automatische Updates nur auf Stable-Releases
+- **`notify`**: Hinweis bei Updates (manuelle Freigabe)
+- **`latest`**: inkl. Pre-Releases (alpha, beta, rc)
+- **`disabled`**: keine automatischen Updates
 
-2. **Create your first snapshot**
-   - Settings → System → Backups → Create Backup
-   - Ensures you can restore if needed
+Konfiguriere das im Add-on Tab **Konfiguration** über `update_mode`.
 
-3. **Explore Skills**
-   - Use the Web UI to discover available skills
-   - Skills are stored in `/config/clawdbot/data/workspace/`
-
-4. **Join the Community**
-   - Report issues: [GitHub Issues](https://github.com/Al3xand3r1987/clawdbot-ha/issues)
-   - Contribute: See [CLAUDE.md](CLAUDE.md)
+Mehr Details: [CONFIGURATION.md](CONFIGURATION.md#update-modes).
 
 ---
 
-## Migration from v0.2.14
+## Nächste Schritte
 
-If you're upgrading from an earlier version (v0.2.14), the add-on will **automatically migrate** your data on first start:
+Nach erfolgreicher Installation:
 
-- Old location: `/config/clawdbot/.clawdbot/`
-- New location: `/config/clawdbot/data/`
+1. **Telegram/WhatsApp konfigurieren** (optional)
+   - Siehe [CONFIGURATION.md](CONFIGURATION.md#messaging-integrations)
 
-**Your data is preserved:**
-- `clawdbot.json` configuration
-- State data
-- Workspace and skills
+2. **Ersten Snapshot erstellen**
+   - Einstellungen → System → Backups → Backup erstellen
+   - Damit du im Notfall wiederherstellen kannst
 
-No manual steps required!
+3. **Skills erkunden**
+   - Nutze die Web UI, um verfügbare Skills zu entdecken
+   - Skills liegen unter `/config/clawdbot/data/workspace/`
 
----
-
-## Troubleshooting
-
-If you encounter issues during installation, see [TROUBLESHOOTING.md](TROUBLESHOOTING.md) for:
-
-- Build failures
-- SSH connection issues
-- API key problems
-- Update failures
-- Snapshot restore issues
+4. **Community**
+   - Issues melden: [GitHub Issues](https://github.com/Al3xand3r1987/clawdbot-ha/issues)
+   - Beitragen: siehe [CLAUDE.md](CLAUDE.md)
 
 ---
 
-## Support
+## Migration von v0.2.14
 
-Need help?
+Wenn du von einer älteren Version (v0.2.14) upgradest, migriert das Add-on deine Daten beim ersten Start **automatisch**:
 
-- **Documentation**: [README.md](README.md), [CONFIGURATION.md](CONFIGURATION.md)
+- Alter Pfad: `/config/clawdbot/.clawdbot/`
+- Neuer Pfad: `/config/clawdbot/data/`
+
+**Deine Daten bleiben erhalten:**
+- `clawdbot.json` Konfiguration
+- State-Daten
+- Workspace und Skills
+
+Keine manuellen Schritte erforderlich!
+
+---
+
+## Fehlersuche
+
+Wenn du bei der Installation Probleme hast, siehe [TROUBLESHOOTING.md](TROUBLESHOOTING.md) für:
+
+- Build-Fehler
+- SSH-Verbindungsprobleme
+- API-Key-Probleme
+- Update-Fehler
+- Snapshot-Restore-Probleme
+
+---
+
+## Unterstützung
+
+Brauchst du Hilfe?
+
+- **Dokumentation**: [README.md](README.md), [CONFIGURATION.md](CONFIGURATION.md)
 - **Issues**: [GitHub Issues](https://github.com/Al3xand3r1987/clawdbot-ha/issues)
 - **Community**: Home Assistant Community Forums
 
 ---
 
-**Installation complete! Enjoy using Clawdbot with Home Assistant! 🎉**
+**Installation abgeschlossen! Viel Erfolg mit Clawdbot in Home Assistant!**
