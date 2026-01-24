@@ -7,6 +7,12 @@ ARG TARGETARCH
 
 FROM node:${NODE_VERSION}-bookworm-slim
 
+# Re-declare ARGs after FROM (they don't persist across FROM boundaries)
+ARG GOG_VERSION=0.9.0
+ARG BUN_VERSION=1.1.38
+ARG PNPM_VERSION=9.15.2
+ARG TARGETARCH
+
 # Use bash with pipefail so curl|tar failures stop the build.
 SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 
