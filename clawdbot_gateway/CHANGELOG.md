@@ -62,7 +62,7 @@ First production-ready release with comprehensive features, stability improvemen
 - `panel_admin`: Restrict panel to admins (default: false)
 - `hassio_api`: Enable Supervisor API access (default: true)
 - `homeassistant_api`: Enable HA Core API access (default: true)
-- `watchdog`: Health monitoring endpoint (default: `tcp://localhost:18789`)
+- `watchdog`: Health monitoring endpoint (default: `tcp://[HOST]:[PORT:18789]`)
 
 #### Backup Options
 - `backup`: Hot backup support (default: `hot`)
@@ -193,7 +193,7 @@ First production-ready release with comprehensive features, stability improvemen
 ### Supported Architectures
 
 - ✅ amd64 (Intel/AMD 64-bit) - Fully tested
-- ✅ arm64 (ARM 64-bit, e.g., Raspberry Pi 4/5) - Fully tested
+- ✅ aarch64 (ARM 64-bit, e.g., Raspberry Pi 4/5) - Fully tested
 - ✅ armv7 (ARM 32-bit, e.g., Raspberry Pi 3) - Fully tested
 
 ### Contributors

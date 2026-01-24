@@ -298,14 +298,14 @@ cat /config/clawdbot/.meta/current_version
 **Änderungen in config.json:**
 - ✅ Tasks 26-28: Ingress-Konfiguration hinzugefügt:
   - `ingress: true` - Aktiviert Ingress (OPEN WEB UI Button)
-  - `ingress_port: 0` - Port 0 = automatisch von Supervisor zugewiesen
+  - `ingress_port: 8099` - Ingress-Port (Entry-Proxy)
   - `ingress_entry: "/"` - Root-Pfad für Ingress
   - `panel_icon: "mdi:robot"` - Robot-Icon im Sidebar
   - `panel_title: "Clawdbot"` - Name im Sidebar Panel
   - `panel_admin: false` - Auch für nicht-Admin User sichtbar
   - `hassio_api: true` - Zugriff auf Supervisor API
   - `homeassistant_api: true` - Zugriff auf HA Core API
-  - `watchdog: "tcp://localhost:18789"` - Health-Monitoring
+  - `watchdog: "tcp://[HOST]:[PORT:18789]"` - Health-Monitoring
 
 **Änderungen in run.sh:**
 - ✅ Task 29: `send_ha_notification()` Funktion implementiert (Zeilen 434-468):
