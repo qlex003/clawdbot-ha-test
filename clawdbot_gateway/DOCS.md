@@ -1,18 +1,18 @@
 # Clawdbot Gateway Documentation
 
-This add-on runs the Clawdbot Gateway on Home Assistant OS, providing secure remote access via SSH tunnel.
+This add-on runs the Clawdbot Gateway on Home Assistant OS, with optional secure remote access via SSH (tunnel/CLI).
 
 ## Overview
 
 - **Gateway** runs locally on the HA host (binds to loopback by default)
-- **SSH server** provides secure remote access for Clawdbot.app or the CLI
+- **Optional: SSH server (Key-based)** provides secure remote access for Debug/CLI (standardmäßig aus)
 - **Persistent storage** under `/config/clawdbot` survives add-on updates
 - On first start, runs `clawdbot setup` to create a minimal config
 
 ## Installation
 
 1. In Home Assistant: **Settings → Add-ons → Add-on Store → ⋮ → Repositories**
-2. Add: `https://github.com/ngutman/clawdbot-ha-addon`
+2. Add: `https://github.com/Al3xand3r1987/clawdbot-ha`
 3. Reload the Add-on Store and install **Clawdbot Gateway**
 
 ## Configuration
@@ -21,8 +21,8 @@ This add-on runs the Clawdbot Gateway on Home Assistant OS, providing secure rem
 
 | Option | Description |
 |--------|-------------|
-| `ssh_authorized_keys` | Your public key(s) for SSH access (required for tunnels) |
-| `ssh_port` | SSH server port (default: `2222`) |
+| `ssh_authorized_keys` | (Optional) Your public key(s) for SSH access. If empty: SSH is disabled. Required for SSH tunnel/CLI access. |
+| `ssh_port` | SSH server port (default: `2222`, only relevant if SSH is enabled) |
 | `port` | Gateway WebSocket port (default: `18789`) |
 | `repo_url` | Clawdbot source repository URL |
 | `branch` | Branch to checkout (uses repo's default if omitted) |
@@ -36,7 +36,7 @@ This add-on runs the Clawdbot Gateway on Home Assistant OS, providing secure rem
 
 The add-on performs these steps on startup:
 
-1. Clones or updates the Clawdbot repo into `/config/clawdbot/clawdbot-src`
+1. Clones or updates the Clawdbot repo into `/config/clawdbot/source/clawdbot-src`
 2. Installs dependencies and builds the gateway
 3. Runs `clawdbot setup` if no config exists
 4. Ensures `gateway.mode=local` if missing
@@ -44,11 +44,13 @@ The add-on performs these steps on startup:
 
 ### Clawdbot Configuration
 
-SSH into the add-on and run the configurator:
+SSH into the add-on and run the configurator.
+
+Note: SSH is only available if `ssh_authorized_keys` is set in the add-on options.
 
 ```bash
 ssh -p 2222 root@<ha-host>
-cd /config/clawdbot/clawdbot-src
+cd /config/clawdbot/source/active
 pnpm clawdbot onboard
 ```
 
@@ -70,6 +72,8 @@ ha addons restart local_clawdbot
 
 The gateway listens on loopback by default. Access it via SSH tunnel:
 
+Note: Requires SSH enabled via `ssh_authorized_keys` in the add-on options.
+
 ```bash
 ssh -p 2222 -N -L 18789:127.0.0.1:18789 root@<ha-host>
 ```
@@ -85,10 +89,12 @@ Use `pnpm clawdbot configure` or `pnpm clawdbot onboard` to set it in `clawdbot.
 
 | Path | Description |
 |------|-------------|
-| `/config/clawdbot/.clawdbot/clawdbot.json` | Main configuration |
-| `/config/clawdbot/.clawdbot/agent/auth.json` | Authentication tokens |
-| `/config/clawdbot/workspace` | Agent workspace |
-| `/config/clawdbot/clawdbot-src` | Source repository |
+| `/config/clawdbot/data/clawdbot.json` | Main configuration |
+| `/config/clawdbot/data/state/` | State data (inkl. Tokens, z. B. `agent/auth.json`) |
+| `/config/clawdbot/data/workspace` | Agent workspace |
+| `/config/clawdbot/source/clawdbot-src` | Source repository (für Builds/Updates) |
+| `/config/clawdbot/source/active` | Aktive Version (Symlink auf Cache) |
+| `/config/clawdbot/cache/` | Gebaute Versionen (für Rollback & Snapshots) |
 | `/config/clawdbot/.ssh` | SSH keys |
 | `/config/clawdbot/.config` | App configs (gh, etc.) |
 
