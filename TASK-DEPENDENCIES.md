@@ -305,7 +305,7 @@ cat /config/clawdbot/.meta/current_version
   - `panel_admin: false` - Auch für nicht-Admin User sichtbar
   - `hassio_api: true` - Zugriff auf Supervisor API
   - `homeassistant_api: true` - Zugriff auf HA Core API
-  - `watchdog: "tcp://[HOST]:[PORT:18789]"` - Health-Monitoring
+  - `watchdog: "tcp://[HOST]:18789"` - Health-Monitoring
 
 **Änderungen in run.sh:**
 - ✅ Task 29: `send_ha_notification()` Funktion implementiert (Zeilen 434-468):

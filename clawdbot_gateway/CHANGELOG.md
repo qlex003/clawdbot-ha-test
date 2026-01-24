@@ -62,7 +62,7 @@ First production-ready release with comprehensive features, stability improvemen
 - `panel_admin`: Restrict panel to admins (default: false)
 - `hassio_api`: Enable Supervisor API access (default: true)
 - `homeassistant_api`: Enable HA Core API access (default: true)
-- `watchdog`: Health monitoring endpoint (default: `tcp://[HOST]:[PORT:18789]`)
+- `watchdog`: Health monitoring endpoint (default: `tcp://[HOST]:18789`)
 
 #### Backup Options
 - `backup`: Hot backup support (default: `hot`)
