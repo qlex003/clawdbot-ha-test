@@ -1,5 +1,31 @@
 # PHASE 3: Update-System - Verifikation
 
+## Setup-UI (Ingress) - Verifikation (OAuth/API Keys ohne SSH)
+
+**Ziel:** Sicherstellen, dass die optionale Setup-Seite (`easy_setup_ui`) funktioniert und der normale Betrieb unverändert bleibt.
+
+### Voraussetzungen
+- Add-on installiert & gestartet
+- In den Add-on Optionen:
+  - `easy_setup_ui: true` (für Setup-Tests)
+  - optional: `update_mode: stable`
+
+### Testfälle
+- [ ] **Ingress erreichbar**: Add-ons → Clawdbot Gateway → **OPEN WEB UI**
+- [ ] **Setup-Seite erreichbar**: im Ingress `/__setup/` öffnen
+- [ ] **Wizard RPC erreichbar**:
+  - [ ] „Wizard starten“ zeigt eine Antwort (kein 502)
+  - [ ] „Status“ zeigt den aktuellen Wizard-State
+  - [ ] „Weiter“ funktioniert (wenn der Wizard Actions/Choices liefert)
+  - [ ] „Abbrechen“ beendet den Wizard-State
+- [ ] **API-Key Save**:
+  - [ ] Anthropic/OpenAI Key speichern → Erfolgsmeldung
+  - [ ] Datei existiert: `/config/clawdbot/data/state/.env`
+  - [ ] Keine Secrets im Add-on Log (Keys dürfen niemals im Klartext auftauchen)
+- [ ] **Transparenter Proxy** (Regression):
+  - [ ] `easy_setup_ui: false` setzen, Add-on neu starten
+  - [ ] OPEN WEB UI zeigt weiterhin die normale Control UI
+
 ## Implementierte Features
 
 ### ✅ Task 13: config.json Update-Modi

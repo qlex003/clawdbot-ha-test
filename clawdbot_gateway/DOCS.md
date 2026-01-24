@@ -21,6 +21,7 @@ This add-on runs the Clawdbot Gateway on Home Assistant OS, with optional secure
 
 | Option | Description |
 |--------|-------------|
+| `easy_setup_ui` | If enabled: exposes a simple setup page at `/__setup/` in the Ingress UI (no SSH needed) |
 | `ssh_authorized_keys` | (Optional) Your public key(s) for SSH access. If empty: SSH is disabled. Required for SSH tunnel/CLI access. |
 | `ssh_port` | SSH server port (default: `2222`, only relevant if SSH is enabled) |
 | `port` | Gateway WebSocket port (default: `18789`) |
@@ -65,6 +66,21 @@ The gateway auto-reloads config changes. Restart the add-on only if you change S
 ```bash
 ha addons restart local_clawdbot
 ```
+
+### OAuth / API-Key Setup ohne SSH (Ingress)
+
+Wenn du **kein SSH** nutzen willst (z. B. „ChatGPT/Codex OAuth“ statt API-Key), kannst du das Setup direkt über die Home-Assistant Oberfläche machen:
+
+1. In den Add-on Optionen `easy_setup_ui: true` setzen und das Add-on neu starten
+2. Add-ons → **Clawdbot Gateway** → **OPEN WEB UI**
+3. Öffne die Setup-Seite:
+   - Wenn noch keine Konfiguration existiert: sie erscheint automatisch
+   - Sonst: rufe `/__setup/` auf
+4. Dort:
+   - **Wizard starten** (empfohlen) → wähle „OpenAI Codex (ChatGPT OAuth)“ oder setze API Keys
+   - Optional: API Keys werden nach `/config/clawdbot/data/state/.env` geschrieben
+
+Hinweis: OAuth-Tokens werden von Clawdbot automatisch refreshed. Ein manueller Re-Login ist nur nötig, wenn der Provider die Session invalidiert.
 
 ## Usage
 

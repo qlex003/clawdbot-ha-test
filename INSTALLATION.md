@@ -69,6 +69,7 @@ update_mode: stable
 #### Optional Configuration
 
 ```yaml
+easy_setup_ui: false  # Optional: Setup-Seite im Ingress unter /__setup/ (OAuth/API Keys ohne SSH)
 pinned_version: ""  # Optional: Pin to specific version
 max_cached_versions: 2  # Keep 2 versions cached
 auto_cleanup_versions: true  # Auto-cleanup old versions
@@ -109,6 +110,8 @@ There are three ways to access Clawdbot:
 2. Click the **"OPEN WEB UI"** button
 3. The Clawdbot interface opens within Home Assistant
 
+**Optional Setup (ohne SSH):** Wenn du `easy_setup_ui: true` setzt, kannst du im Ingress zusätzlich `/__setup/` öffnen (OAuth/API Keys).
+
 **OR**
 
 1. Check your **Home Assistant Sidebar**
@@ -140,6 +143,13 @@ nano clawdbot.json
 ---
 
 ### Step 6: Configure Anthropic API Key
+
+#### Via Setup UI (Ingress, ohne SSH) - Recommended
+
+1. Set `easy_setup_ui: true` in the add-on Configuration (optional, but recommended for first setup)
+2. Open the add-on Web UI (Ingress)
+3. Open `/__setup/`
+4. Paste your **Anthropic API Key** and click **Save**
 
 #### Via Web UI (Easiest)
 

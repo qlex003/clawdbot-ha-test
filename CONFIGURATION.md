@@ -20,6 +20,16 @@ These options are configured in the **Add-on Configuration Tab** in Home Assista
 
 ### Core Options
 
+#### `easy_setup_ui`
+- **Type:** `boolean`
+- **Default:** `false`
+- **Description:** Aktiviert eine einfache Setup-Seite im Home-Assistant Ingress unter `/__setup/` (OAuth/API Keys ohne SSH)
+- **Use Case:** ChatGPT/Codex OAuth einrichten oder Keys setzen, ohne in den Container zu müssen
+
+```yaml
+easy_setup_ui: true
+```
+
 #### `ssh_port`
 - **Type:** `integer`
 - **Default:** `2222`
