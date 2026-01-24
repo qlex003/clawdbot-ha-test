@@ -47,6 +47,12 @@ Set basic options in the **Configuration** tab:
 update_mode: stable
 ```
 
+**Optional (empfohlen für OAuth ohne SSH):**
+
+```yaml
+easy_setup_ui: true
+```
+
 **Optional (nur wenn du SSH wirklich brauchst):**
 
 ```yaml
@@ -114,6 +120,7 @@ For detailed instructions, see [INSTALLATION.md](INSTALLATION.md).
 
 | Option | Default | Description |
 |--------|---------|-------------|
+| `easy_setup_ui` | `false` | Optionale Setup-Seite im Ingress unter `/__setup/` (OAuth/API Keys ohne SSH) |
 | `ssh_authorized_keys` | `""` | (Optional) Öffentliche SSH-Keys (wenn leer: SSH deaktiviert) |
 | `ssh_port` | `2222` | SSH Port (nur relevant wenn SSH aktiv) |
 
@@ -220,6 +227,7 @@ For complete configuration details, see [CONFIGURATION.md](CONFIGURATION.md).
 #### 1. Web UI (Ingress)
 - Add-ons → Clawdbot Gateway → **OPEN WEB UI**
 - OR: Home Assistant Sidebar → **Clawdbot Icon**
+- Setup (optional, wenn `easy_setup_ui: true`): öffne `/__setup/` im Ingress
 
 #### 2. Direct Port
 ```

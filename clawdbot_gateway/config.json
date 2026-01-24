@@ -10,7 +10,7 @@
   "boot": "auto",
   "host_network": true,
   "ingress": true,
-  "ingress_port": 0,
+  "ingress_port": 8099,
   "ingress_entry": "/",
   "panel_icon": "mdi:robot",
   "panel_title": "Clawdbot",
@@ -32,6 +32,7 @@
   },
   "options": {
     "port": 18789,
+    "easy_setup_ui": false,
     "verbose": false,
     "log_format": "pretty",
     "log_color": false,
@@ -48,6 +49,7 @@
   },
   "schema": {
     "port": "int(1,65535)",
+    "easy_setup_ui": "bool?",
     "verbose": "bool",
     "log_format": "str",
     "log_color": "bool",

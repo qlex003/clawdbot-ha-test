@@ -798,6 +798,7 @@ VERBOSE="$(jq -r .verbose /data/options.json)"
 LOG_FORMAT="$(jq -r '.log_format // empty' /data/options.json 2>/dev/null || true)"
 LOG_COLOR="$(jq -r '.log_color // empty' /data/options.json 2>/dev/null || true)"
 LOG_FIELDS="$(jq -r '.log_fields // empty' /data/options.json 2>/dev/null || true)"
+EASY_SETUP_UI_OPT="$(jq -r '.easy_setup_ui // false' /data/options.json 2>/dev/null || echo 'false')"
 
 if [ -z "${LOG_FORMAT}" ] || [ "${LOG_FORMAT}" = "null" ]; then
   LOG_FORMAT="pretty"
@@ -817,6 +818,15 @@ if [ -z "${PORT}" ] || [ "${PORT}" = "null" ]; then
   PORT="18789"
 fi
 
+# Setup-Proxy (Ingress entry)
+# - Always enabled (Ingress points here), but "easy setup UI" is optional.
+# - Bind loopback only (Ingress proxy runs on the host).
+if [ "${EASY_SETUP_UI_OPT}" != "true" ]; then
+  EASY_SETUP_UI_OPT="false"
+fi
+SETUP_PROXY_HOST="127.0.0.1"
+SETUP_PROXY_PORT="8099"
+
 ALLOW_UNCONFIGURED=()
 if [ ! -f "${CONFIG_PATH}" ]; then
   log "config missing; allowing unconfigured gateway start"
@@ -832,6 +842,25 @@ fi
 ARGS=(gateway "${ALLOW_UNCONFIGURED[@]}" --port "${PORT}")
 if [ "${VERBOSE}" = "true" ]; then
   ARGS+=(--verbose)
+fi
+
+# Start Ingress reverse proxy (transparent unless easy_setup_ui=true)
+proxy_pid=""
+start_setup_proxy() {
+  export SETUP_PROXY_HOST="${SETUP_PROXY_HOST}"
+  export SETUP_PROXY_PORT="${SETUP_PROXY_PORT}"
+  export GATEWAY_HOST="127.0.0.1"
+  export GATEWAY_PORT="${PORT}"
+  export EASY_SETUP_UI="${EASY_SETUP_UI_OPT}"
+  export CLAWDBOT_ACTIVE_DIR="${SOURCE_DIR}/active"
+
+  node /opt/clawdbot/setup-proxy.js &
+  proxy_pid=$!
+  log "setup proxy started pid=${proxy_pid} bind=${SETUP_PROXY_HOST}:${SETUP_PROXY_PORT} easy_setup_ui=${EASY_SETUP_UI_OPT}"
+}
+
+if ! start_setup_proxy; then
+  log "failed to start setup proxy (ingress may be unavailable)"
 fi
 
 # ============================================================================
@@ -852,6 +881,9 @@ forward_usr1() {
 shutdown_child() {
   if [ -n "${tail_pid}" ]; then
     kill -TERM "${tail_pid}" 2>/dev/null || true
+  fi
+  if [ -n "${proxy_pid}" ]; then
+    kill -TERM "${proxy_pid}" 2>/dev/null || true
   fi
   if [ -n "${child_pid}" ]; then
     kill -TERM "${child_pid}" 2>/dev/null || true

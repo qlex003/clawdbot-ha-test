@@ -507,11 +507,13 @@ ha addons logs local_clawdbot --follow
    ha addons info local_clawdbot | grep ingress
    ```
    - Should show `ingress: true`
+   - Optional: if `easy_setup_ui: true`, try opening `/__setup/` inside the Ingress UI (setup proxy page)
 
 3. **Try direct port access:**
    ```
    http://YOUR-HA-IP:18789
    ```
+   **Note:** Ingress uses an internal proxy. Direct access only works if your Gateway bind/auth allows it.
 
 4. **Check Gateway logs:**
    ```bash

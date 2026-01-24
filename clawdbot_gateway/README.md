@@ -13,8 +13,9 @@ Run [Clawdbot](https://github.com/clawdbot/clawdbot) on Home Assistant OS with s
 
 1. Add this repository to Home Assistant
 2. Install "Clawdbot Gateway" from the Add-on Store
-3. Configure your SSH public key in the add-on options
-4. Start the add-on and connect via SSH tunnel
+3. Optional: enable `easy_setup_ui` to set up OAuth/API keys without SSH (Ingress: `/__setup/`)
+4. Optional: configure your SSH public key in the add-on options (only if you need SSH tunnel/CLI)
+5. Start the add-on and open the Web UI (Ingress)
 
 ## Links
 
