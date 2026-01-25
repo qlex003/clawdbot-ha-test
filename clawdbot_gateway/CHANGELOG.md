@@ -7,6 +7,23 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [1.0.12] - 2026-01-25
+
+### Changed
+- **Easy Setup UI Default**: Changed `easy_setup_ui` default from `false` to `true`
+  - **Issue**: New installations showed "502 Bad Gateway" because no API-key was configured
+  - **Root cause**: Without API-key/OAuth, the gateway doesn't serve a web UI
+  - **Solution**: Enable setup UI by default so users can configure OAuth/API-keys on first visit
+  - Users can now access `/__setup/` immediately after installation to configure ChatGPT OAuth or API keys
+  - After setup is complete, users can optionally disable `easy_setup_ui` in add-on options
+
+### Technical Details
+- Line 35 in config.json: Changed `"easy_setup_ui": false` to `"easy_setup_ui": true`
+- This improves first-time user experience for fresh installations
+- Setup UI provides wizard for OAuth (ChatGPT/Codex) and direct API key entry
+
+---
+
 ## [1.0.11] - 2026-01-25
 
 ### Fixed
