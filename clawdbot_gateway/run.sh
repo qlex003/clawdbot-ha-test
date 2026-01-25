@@ -5,7 +5,7 @@ log() {
   printf "[addon] %s\n" "$*" >&2
 }
 
-log "run.sh version=2026-01-25-v1.0.10-fix-setup-fallback"
+log "run.sh version=2026-01-25-v1.0.11-fix-memory-plugin"
 
 # ============================================================================
 # PHASE 2: Neue Verzeichnisstruktur (v1.0.0)
@@ -823,6 +823,11 @@ if [ ! -f "${CONFIG_PATH}" ]; then
   },
   "logging": {
     "file": "/tmp/clawdbot/clawdbot.log"
+  },
+  "plugins": {
+    "slots": {
+      "memory": "none"
+    }
   }
 }
 EOF_CONFIG

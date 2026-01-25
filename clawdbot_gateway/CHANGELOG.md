@@ -7,6 +7,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [1.0.11] - 2026-01-25
+
+### Fixed
+- **Memory Plugin Validation Error**: Fixed crash loop caused by `memory-core` plugin not found
+  - **Issue**: Gateway crashed with `plugins.slots.memory: plugin not found: memory-core`
+  - **Root cause**: Minimal fallback config didn't specify plugin settings, so Clawdbot merged its defaults which reference `memory-core` - a plugin not available in v2026.1.23
+  - **Solution**: Minimal config now explicitly sets `plugins.slots.memory: "none"` to disable the memory plugin
+  - Gateway can now start successfully even when setup fails
+
+### Technical Details
+- Line 827-831: Added `plugins.slots.memory: "none"` to minimal fallback config
+- This prevents Clawdbot from trying to load the default memory plugin
+- Memory functionality can be re-enabled later via the Clawdbot config UI
+
+---
+
 ## [1.0.10] - 2026-01-25
 
 ### Fixed
