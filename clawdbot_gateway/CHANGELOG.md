@@ -7,6 +7,23 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [1.0.9] - 2026-01-25
+
+### Fixed
+- **CRITICAL: Missing TypeScript sources in Cache**: Fixed runtime build failures in clawdbot setup
+  - **Root cause**: Cache missing `tsconfig.json` and `src/` directory
+  - Clawdbot tries to rebuild itself on first run, but TypeScript sources weren't cached
+  - Error: `TS5058: The specified path does not exist: 'tsconfig.json'`
+  - **Solution**: Added `tsconfig.json` and `src/` to cache in lines 358-359
+  - Now copies complete build environment to cache
+
+### Technical Details
+- Line 358-359: Added TypeScript source files to cache
+- Ensures runtime builds work without requiring full source tree
+- Completes the cache fix series (v1.0.8 added scripts/, v1.0.9 adds TS sources)
+
+---
+
 ## [1.0.8] - 2026-01-25
 
 ### Fixed

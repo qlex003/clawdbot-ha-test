@@ -5,7 +5,7 @@ log() {
   printf "[addon] %s\n" "$*" >&2
 }
 
-log "run.sh version=2026-01-25-v1.0.8-fix-cache-scripts"
+log "run.sh version=2026-01-25-v1.0.9-fix-cache-tsconfig"
 
 # ============================================================================
 # PHASE 2: Neue Verzeichnisstruktur (v1.0.0)
@@ -353,6 +353,10 @@ download_and_build_version() {
     rm -rf "${temp_dir}"
     return 1
   }
+
+  # TypeScript source files (falls Runtime-Build nötig ist)
+  [ -f "tsconfig.json" ] && cp tsconfig.json "${build_dir}/" || true
+  [ -d "src" ] && cp -r src "${build_dir}/" || true
 
   # UI falls vorhanden
   [ -d "ui" ] && cp -r ui "${build_dir}/" || true
