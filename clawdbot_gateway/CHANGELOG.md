@@ -7,6 +7,32 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [1.0.4] - 2026-01-25
+
+### Fixed
+- **Update Version Comparison**: Fixed false update detection for ahead-of-tag versions
+  - System now correctly detects when current version is ahead of latest tag
+  - Example: `v2026.1.23-72-g913d2f4b3` (72 commits ahead) is no longer treated as older than `v2026.1.23`
+  - Eliminates repetitive failed update attempts that caused gateway crashes
+- **HA Notifications**: Fixed HTTP 400/connection errors with retry logic
+  - Primary endpoint: `notify/persistent_notification`
+  - Fallback endpoint: `persistent_notification/create` for older HA versions
+  - Notification failures are now non-critical and don't block startup
+- **Watchdog Rate Limit**: Added crash loop protection
+  - Max 5 restarts within 60 seconds before stopping
+  - 5-second delay between restart attempts for error investigation
+  - Setup proxy (port 8099) remains accessible even if gateway crashes
+  - HA notification sent when crash loop is detected
+  - Container stays alive for debugging instead of entering watchdog cycle
+
+### Technical Details
+- `check_for_updates()` now parses git describe format to detect ahead-of-tag versions
+- `send_ha_notification()` has dual endpoint support with fallback logic
+- Main loop includes crash detection with exponential backoff
+- Gateway health tracking prevents supervisor from hitting rate limits
+
+---
+
 ## [1.0.3] - 2026-01-25
 
 ### Fixed
