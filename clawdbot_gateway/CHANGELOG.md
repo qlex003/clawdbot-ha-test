@@ -7,6 +7,24 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [1.0.10] - 2026-01-25
+
+### Fixed
+- **Setup Failure Tolerance**: Added fallback when clawdbot setup fails
+  - **Issue**: Setup can fail due to plugin validation errors (e.g., `memory-core` not found)
+  - This prevented gateway from starting even though setup is optional
+  - **Solution**: Setup failure is now non-critical - creates minimal config as fallback
+  - Minimal config includes gateway mode and logging configuration
+  - Gateway can now start even if full setup fails
+
+### Technical Details
+- Line 815-829: Added error handler for setup command
+- Creates minimal JSON config with gateway.mode and logging.file
+- Allows gateway to run without full Clawdbot features
+- Setup failures are logged but don't block startup
+
+---
+
 ## [1.0.9] - 2026-01-25
 
 ### Fixed
