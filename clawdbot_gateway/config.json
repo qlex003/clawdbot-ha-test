@@ -1,6 +1,6 @@
 {
   "name": "Clawdbot Gateway",
-  "version": "1.0.14",
+  "version": "1.0.15",
   "slug": "clawdbot_gateway",
   "description": "Clawdbot Gateway (Home Assistant Add-on)",
   "url": "https://github.com/Al3xand3r1987/clawdbot-ha",
@@ -32,7 +32,10 @@
   },
   "options": {
     "port": 18789,
-    "easy_setup_ui": true,
+    "easy_setup_ui": false,
+    "anthropic_api_key": "",
+    "openai_api_key": "",
+    "primary_model": "openai/gpt-5.1",
     "verbose": false,
     "log_format": "pretty",
     "log_color": false,
@@ -50,6 +53,9 @@
   "schema": {
     "port": "int(1,65535)",
     "easy_setup_ui": "bool?",
+    "anthropic_api_key": "password?",
+    "openai_api_key": "password?",
+    "primary_model": "str?",
     "verbose": "bool",
     "log_format": "str",
     "log_color": "bool",

@@ -7,6 +7,38 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [1.0.15] - 2026-01-25
+
+### Added
+- **Direct API Key Configuration**: API keys can now be set directly in Home Assistant Add-on configuration
+  - **New Options**: `anthropic_api_key`, `openai_api_key`, `primary_model` in add-on config UI
+  - **Auto-Apply**: API keys from add-on config are automatically applied to Clawdbot config on startup
+  - **No Setup Wizard**: Setup wizard (`easy_setup_ui`) is now disabled by default - just enter API keys in config
+  - **Model Selection**: Choose primary model (default: `openai/gpt-5.1`, also supports `openai/gpt-4o`, `anthropic/claude-sonnet-4.5`, etc.)
+  - **Memory Search**: Automatically enables OpenAI memory search when OpenAI API key is configured
+
+### Changed
+- Default `easy_setup_ui` changed from `true` to `false` - API keys are now configured in add-on options instead
+- Default primary model changed from `openai/gpt-4o` to `openai/gpt-5.1`
+
+### Technical Details
+- Added `apply_addon_api_keys()` function in run.sh (Lines 859-925)
+- Reads API keys from `/data/options.json` and writes them to Clawdbot config
+- Automatically configures `env.OPENAI_API_KEY`, `env.ANTHROPIC_API_KEY`, `agents.defaults.model.primary`
+- Enables `memorySearch` with OpenAI embeddings when OpenAI key is present
+- Ensures `plugins.slots.memory: "none"` to prevent memory-core errors
+
+### User Experience
+Users can now simply:
+1. Install the add-on
+2. Go to Configuration tab
+3. Enter their OpenAI or Anthropic API key
+4. Optionally change the primary model
+5. Save and restart
+6. Access the web UI - no setup wizard needed!
+
+---
+
 ## [1.0.14] - 2026-01-25
 
 ### Fixed

@@ -5,7 +5,7 @@ log() {
   printf "[addon] %s\n" "$*" >&2
 }
 
-log "run.sh version=2026-01-25-v1.0.14-fix-ingress-binding"
+log "run.sh version=2026-01-25-v1.0.15-add-api-key-config"
 
 # ============================================================================
 # PHASE 2: Neue Verzeichnisstruktur (v1.0.0)
@@ -856,6 +856,74 @@ read_log_file() {
   node -e "const fs=require('fs');const JSON5=require('json5');const p=process.env.CLAWDBOT_CONFIG_PATH;const raw=fs.readFileSync(p,'utf8');const data=JSON5.parse(raw);const logging=data.logging||{};const file=String(logging.file||'').trim();if(file){console.log(file);}"; 2>/dev/null
 }
 
+apply_addon_api_keys() {
+  local anthropic_key="${1:-}"
+  local openai_key="${2:-}"
+  local model="${3:-openai/gpt-5.1}"
+
+  # Skip if both keys are empty
+  if [ -z "${anthropic_key}" ] && [ -z "${openai_key}" ]; then
+    return 0
+  fi
+
+  node -e "
+    const fs = require('fs');
+    const JSON5 = require('json5');
+    const path = process.env.CLAWDBOT_CONFIG_PATH;
+
+    const raw = fs.readFileSync(path, 'utf8');
+    const data = JSON5.parse(raw);
+
+    // Ensure env object exists
+    data.env = data.env || {};
+
+    // Set API keys from add-on config
+    const anthropicKey = '${anthropic_key}';
+    const openaiKey = '${openai_key}';
+
+    if (anthropicKey && anthropicKey !== 'null' && anthropicKey.trim()) {
+      data.env.ANTHROPIC_API_KEY = anthropicKey.trim();
+      console.error('[config] Applied Anthropic API key from add-on config');
+    }
+
+    if (openaiKey && openaiKey !== 'null' && openaiKey.trim()) {
+      data.env.OPENAI_API_KEY = openaiKey.trim();
+      console.error('[config] Applied OpenAI API key from add-on config');
+    }
+
+    // Ensure agents.defaults.model exists
+    data.agents = data.agents || {};
+    data.agents.defaults = data.agents.defaults || {};
+    data.agents.defaults.model = data.agents.defaults.model || {};
+
+    // Set primary model
+    const model = '${model}';
+    if (model && model !== 'null' && model.trim()) {
+      data.agents.defaults.model.primary = model.trim();
+      console.error('[config] Set primary model to ' + model.trim());
+    }
+
+    // Enable memory search with OpenAI if OpenAI key is set
+    if (data.env.OPENAI_API_KEY) {
+      data.agents.defaults.memorySearch = {
+        provider: 'openai',
+        model: 'text-embedding-3-small',
+        fallback: 'openai',
+        sync: { watch: true }
+      };
+      console.error('[config] Enabled memory search with OpenAI embeddings');
+    }
+
+    // Ensure plugins.slots.memory is set to 'none' to avoid memory-core error
+    data.plugins = data.plugins || {};
+    data.plugins.slots = data.plugins.slots || {};
+    data.plugins.slots.memory = 'none';
+
+    fs.writeFileSync(path, JSON.stringify(data, null, 2) + '\n');
+    console.log('updated');
+  " 2>&1 | grep -v '^\[config\]' || echo 'unchanged'
+}
+
 if [ -f "${CONFIG_PATH}" ]; then
   mode_status="$(ensure_gateway_mode || true)"
   if [ "${mode_status}" = "updated" ]; then
@@ -864,6 +932,12 @@ if [ -f "${CONFIG_PATH}" ]; then
     log "gateway.mode already set"
   else
     log "failed to normalize gateway.mode (invalid config?)"
+  fi
+
+  # Apply API keys from add-on configuration
+  api_key_status="$(apply_addon_api_keys "${ANTHROPIC_API_KEY}" "${OPENAI_API_KEY}" "${PRIMARY_MODEL}" || true)"
+  if [ "${api_key_status}" = "updated" ]; then
+    log "API keys applied from add-on configuration"
   fi
 fi
 
@@ -891,6 +965,9 @@ LOG_FORMAT="$(jq -r '.log_format // empty' /data/options.json 2>/dev/null || tru
 LOG_COLOR="$(jq -r '.log_color // empty' /data/options.json 2>/dev/null || true)"
 LOG_FIELDS="$(jq -r '.log_fields // empty' /data/options.json 2>/dev/null || true)"
 EASY_SETUP_UI_OPT="$(jq -r '.easy_setup_ui // false' /data/options.json 2>/dev/null || echo 'false')"
+ANTHROPIC_API_KEY="$(jq -r '.anthropic_api_key // empty' /data/options.json 2>/dev/null || true)"
+OPENAI_API_KEY="$(jq -r '.openai_api_key // empty' /data/options.json 2>/dev/null || true)"
+PRIMARY_MODEL="$(jq -r '.primary_model // "openai/gpt-5.1"' /data/options.json 2>/dev/null || echo 'openai/gpt-5.1')"
 
 if [ -z "${LOG_FORMAT}" ] || [ "${LOG_FORMAT}" = "null" ]; then
   LOG_FORMAT="pretty"
