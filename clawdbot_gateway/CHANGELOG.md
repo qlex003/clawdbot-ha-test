@@ -7,6 +7,23 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [1.0.14] - 2026-01-25
+
+### Fixed
+- **Ingress Connection Failed**: Fixed "502 Bad Gateway" caused by setup-proxy binding to localhost only
+  - **Issue**: Home Assistant Ingress couldn't connect to setup-proxy on port 8099
+  - **Root cause**: Setup-proxy bound to `127.0.0.1:8099`, but HA Ingress tries to connect from external IP `172.30.32.1:8099`
+  - **Solution**: Changed `SETUP_PROXY_HOST` from `127.0.0.1` to `0.0.0.0` in run.sh
+  - Ingress can now reach the proxy and forward requests to the gateway
+  - Web UI is now accessible via "OPEN WEB UI" button
+
+### Technical Details
+- Line 919 in run.sh: Changed `SETUP_PROXY_HOST="127.0.0.1"` to `SETUP_PROXY_HOST="0.0.0.0"`
+- Updated comment to clarify that `0.0.0.0` binding is required for HA Ingress
+- With `host_network: true`, add-ons must bind to `0.0.0.0` for Ingress to work
+
+---
+
 ## [1.0.13] - 2026-01-25
 
 ### Fixed

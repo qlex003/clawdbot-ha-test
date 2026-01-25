@@ -5,7 +5,7 @@ log() {
   printf "[addon] %s\n" "$*" >&2
 }
 
-log "run.sh version=2026-01-25-v1.0.13-auto-setup-without-apikey"
+log "run.sh version=2026-01-25-v1.0.14-fix-ingress-binding"
 
 # ============================================================================
 # PHASE 2: Neue Verzeichnisstruktur (v1.0.0)
@@ -912,11 +912,11 @@ fi
 
 # Setup-Proxy (Ingress entry)
 # - Always enabled (Ingress points here), but "easy setup UI" is optional.
-# - Bind loopback only (Ingress proxy runs on the host).
+# - Bind to 0.0.0.0 to allow Home Assistant Ingress access
 if [ "${EASY_SETUP_UI_OPT}" != "true" ]; then
   EASY_SETUP_UI_OPT="false"
 fi
-SETUP_PROXY_HOST="127.0.0.1"
+SETUP_PROXY_HOST="0.0.0.0"
 SETUP_PROXY_PORT="8099"
 
 ALLOW_UNCONFIGURED=()
