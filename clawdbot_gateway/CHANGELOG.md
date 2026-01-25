@@ -7,6 +7,24 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [1.0.7] - 2026-01-25
+
+### Fixed
+- **CRITICAL: Build Loop for Ahead-of-Tag Versions**: Fixed endless build failures when HEAD is ahead of latest tag
+  - **Root cause**: `git describe --tags` returns `vX.Y.Z-N-gHASH` format (e.g., `v2026.1.23-72-g913d2f4b3`)
+  - This format is NOT a valid git reference for checkout, causing `git checkout` to fail
+  - Result: Endless loop of build attempts, no gateway starts, Ingress connection errors
+  - **Solution 1**: Version detection now uses latest stable tag when HEAD is not on a tag
+  - **Solution 2**: Checkout logic now extracts commit hash from git describe format
+  - Example: `v2026.1.23-72-g913d2f4b3` → extracts `913d2f4b3` for checkout
+
+### Technical Details
+- Line ~697-709: Version detection now prefers exact tags, falls back to latest stable tag
+- Line ~300-306: Added git describe format parsing to extract checkout-able commit hash
+- Both changes work together to prevent build failures when repo HEAD is ahead of tags
+
+---
+
 ## [1.0.6] - 2026-01-25
 
 ### Fixed

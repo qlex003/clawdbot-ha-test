@@ -5,7 +5,7 @@ log() {
   printf "[addon] %s\n" "$*" >&2
 }
 
-log "run.sh version=2026-01-25-v1.0.6-fix-log-stdout"
+log "run.sh version=2026-01-25-v1.0.7-fix-version-detection"
 
 # ============================================================================
 # PHASE 2: Neue Verzeichnisstruktur (v1.0.0)
@@ -296,8 +296,17 @@ download_and_build_version() {
 
   # Zur gewünschten Version wechseln
   git fetch --all --tags >/dev/null 2>&1 || true
-  git checkout "${version}" >/dev/null 2>&1 || {
-    log "failed to checkout ${version}"
+
+  # Konvertiere git describe Format zu checkout-barer Referenz
+  # v2026.1.23-72-g913d2f4b3 → extrahiere Commit-Hash: 913d2f4b3
+  local checkout_ref="${version}"
+  if echo "${version}" | grep -qE '^v?[0-9]+\.[0-9]+\.[0-9]+-[0-9]+-g[a-f0-9]+$'; then
+    checkout_ref="$(echo "${version}" | sed -E 's/.*-g([a-f0-9]+)$/\1/')"
+    log "converting ${version} to commit ${checkout_ref}"
+  fi
+
+  git checkout "${checkout_ref}" >/dev/null 2>&1 || {
+    log "failed to checkout ${checkout_ref}"
     rm -rf "${temp_dir}"
     return 1
   }
@@ -694,9 +703,19 @@ if [ "${IS_SNAPSHOT_RESTORE}" != "true" ]; then
     if [ -n "${BRANCH}" ]; then
       git checkout "${BRANCH}" 2>/dev/null || git checkout main 2>/dev/null || git checkout master 2>/dev/null || true
     fi
-    # Verwende exakten Tag falls HEAD darauf zeigt, sonst git describe
-    CURRENT_VER="$(git describe --tags --exact-match 2>/dev/null || git describe --tags --always 2>/dev/null || git rev-parse --short HEAD)"
-    log "no current version, detected: ${CURRENT_VER}"
+    # Verwende exakten Tag falls HEAD darauf zeigt
+    CURRENT_VER="$(git describe --tags --exact-match 2>/dev/null || true)"
+    if [ -z "${CURRENT_VER}" ]; then
+      # HEAD ist nicht auf einem Tag - verwende neuesten stabilen Tag
+      CURRENT_VER="$(git tag -l --sort=-version:refname | grep -v -E '(alpha|beta|rc)' | head -1)"
+      if [ -z "${CURRENT_VER}" ]; then
+        # Kein Tag vorhanden - verwende Short-Commit
+        CURRENT_VER="$(git rev-parse --short HEAD)"
+      fi
+      log "HEAD not on tag, using latest stable: ${CURRENT_VER}"
+    else
+      log "no current version, detected: ${CURRENT_VER}"
+    fi
   fi
 
   # Update-Check durchführen
