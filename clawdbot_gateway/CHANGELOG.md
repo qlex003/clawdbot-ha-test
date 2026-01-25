@@ -7,6 +7,27 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [1.0.5] - 2026-01-25
+
+### Fixed
+- **Version Comparison Logic**: Completely rewrote ahead-of-tag detection
+  - Simplified comparison logic by checking base tag match first
+  - Removed redundant `current_base_tag` comparison that caused false positives
+  - Example: `v2026.1.23-72-g913d2f4b3` now correctly recognized as ahead of `v2026.1.23`
+  - Eliminates infinite update loops that caused build failures and gateway crashes
+- **Ingress Connection Errors**: Improved logging for startup sequence
+  - Added informational message that Ingress will be available after gateway starts
+  - Proxy already handles connection retries gracefully (returns user-friendly 502)
+  - Initial connection errors during startup are expected and non-critical
+
+### Technical Details
+- Restructured `check_for_updates()` logic flow for better readability
+- Ahead-of-tag check now happens before generic version comparison
+- Version comparison simplified from 3 conditions to 1
+- No changes to proxy behavior - already handles connection failures properly
+
+---
+
 ## [1.0.4] - 2026-01-25
 
 ### Fixed

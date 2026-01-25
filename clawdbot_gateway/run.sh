@@ -5,7 +5,7 @@ log() {
   printf "[addon] %s\n" "$*"
 }
 
-log "run.sh version=2026-01-25-v1.0.1-fix-update-logic"
+log "run.sh version=2026-01-25-v1.0.5-fix-version-comparison"
 
 # ============================================================================
 # PHASE 2: Neue Verzeichnisstruktur (v1.0.0)
@@ -240,24 +240,22 @@ check_for_updates() {
     target_version=$(git rev-parse --short HEAD)
   fi
 
-  # Extrahiere Base-Tag aus current_version für Vergleich
-  # v2026.1.23-72-g913d2f4b3 -> v2026.1.23
-  local current_base_tag
-  current_base_tag="$(echo "${current_version}" | sed -E 's/^(v?[0-9]+\.[0-9]+\.[0-9]+).*/\1/')"
-
-  # Prüfe ob current_version NACH dem neuesten Tag liegt (mehr Commits)
-  # Format: vX.Y.Z-N-gHASH bedeutet N Commits nach Tag vX.Y.Z
+  # Check if current_version is ahead of latest tag
+  # Format: vX.Y.Z-N-gHASH means N commits after tag vX.Y.Z
   if echo "${current_version}" | grep -qE '^v?[0-9]+\.[0-9]+\.[0-9]+-[0-9]+-g[a-f0-9]+$'; then
-    # current_version ist im git describe Format (commits nach Tag)
+    # Extract base tag from current_version: v2026.1.23-72-g913d2f4b3 -> v2026.1.23
+    local current_base_tag
+    current_base_tag="$(echo "${current_version}" | sed -E 's/^(v?[0-9]+\.[0-9]+\.[0-9]+).*/\1/')"
+
+    # If base tag matches target_version, we're ahead - no update needed
     if [ "${current_base_tag}" = "${target_version}" ]; then
-      # Wir sind bereits VORAUS vom neuesten Tag - kein Update nötig
       log "current version ${current_version} is ahead of latest tag ${target_version}"
       return 1
     fi
   fi
 
-  # Ist es eine neue Version?
-  if [ "${target_version}" != "${current_version}" ] && [ "${target_version}" != "${current_base_tag}" ]; then
+  # Is it a new version?
+  if [ "${target_version}" != "${current_version}" ]; then
     log "update available: ${current_version} → ${target_version}"
     echo "${target_version}"
     return 0
@@ -904,9 +902,11 @@ start_setup_proxy() {
   export EASY_SETUP_UI="${EASY_SETUP_UI_OPT}"
   export CLAWDBOT_ACTIVE_DIR="${SOURCE_DIR}/active"
 
+  # Start proxy in background (it will retry connections to gateway)
   node /opt/clawdbot/setup-proxy.js &
   proxy_pid=$!
   log "setup proxy started pid=${proxy_pid} bind=${SETUP_PROXY_HOST}:${SETUP_PROXY_PORT} easy_setup_ui=${EASY_SETUP_UI_OPT}"
+  log "ingress will be available once gateway starts on port ${PORT}"
 }
 
 if ! start_setup_proxy; then
