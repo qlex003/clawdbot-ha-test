@@ -92,11 +92,32 @@ function htmlEscape(s) {
     .replaceAll("'", '&#39;');
 }
 
+function configHasApiKey() {
+  if (!exists(CLAWDBOT_CONFIG_PATH)) return false;
+  try {
+    const raw = fs.readFileSync(CLAWDBOT_CONFIG_PATH, 'utf8');
+    const config = JSON.parse(raw);
+    // Check for common API key fields
+    if (config.anthropic_api_key) return true;
+    if (config.openai_api_key) return true;
+    // Check for providers object with configured providers
+    if (config.providers && typeof config.providers === 'object') {
+      const providerKeys = Object.keys(config.providers);
+      if (providerKeys.length > 0) return true;
+    }
+    return false;
+  } catch {
+    return false;
+  }
+}
+
 function shouldServeSetupForRequest(reqUrl) {
   if (!EASY_SETUP_UI) return false;
   if (reqUrl.startsWith('/__setup')) return true;
-  // Auto-show setup if no config exists yet (typical first-run).
-  return !exists(CLAWDBOT_CONFIG_PATH);
+  // Auto-show setup if no config exists OR config has no API key configured
+  if (!exists(CLAWDBOT_CONFIG_PATH)) return true;
+  // Show setup if config is minimal (no API key)
+  return !configHasApiKey();
 }
 
 function pnpmCwd() {

@@ -7,6 +7,23 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [1.0.13] - 2026-01-25
+
+### Fixed
+- **Auto-Show Setup When No API Key**: Setup page now automatically shows when config exists but has no API key
+  - **Issue**: After v1.0.11 fix, config file exists but user still saw "502 Bad Gateway" because `shouldServeSetupForRequest()` only checked if config file exists, not if it's complete
+  - **Root cause**: The minimal fallback config has no API keys, so gateway doesn't serve UI, but setup proxy didn't redirect to setup page
+  - **Solution**: Added `configHasApiKey()` function to check if config has `anthropic_api_key`, `openai_api_key`, or `providers` configured
+  - Setup page now auto-shows on `/` when config is missing API keys (not just when config file is missing)
+  - Users no longer need to manually add `/__setup/` to the URL
+
+### Technical Details
+- Added `configHasApiKey()` function in setup-proxy.js (Lines 95-112)
+- Modified `shouldServeSetupForRequest()` to use the new check (Lines 114-121)
+- Checks for: `anthropic_api_key`, `openai_api_key`, or non-empty `providers` object
+
+---
+
 ## [1.0.12] - 2026-01-25
 
 ### Changed

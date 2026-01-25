@@ -5,7 +5,7 @@ log() {
   printf "[addon] %s\n" "$*" >&2
 }
 
-log "run.sh version=2026-01-25-v1.0.12-enable-setup-ui-default"
+log "run.sh version=2026-01-25-v1.0.13-auto-setup-without-apikey"
 
 # ============================================================================
 # PHASE 2: Neue Verzeichnisstruktur (v1.0.0)
