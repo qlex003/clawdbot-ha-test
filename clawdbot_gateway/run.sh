@@ -220,16 +220,25 @@ check_for_updates() {
 
   # Neueste Version bestimmen
   local target_version=""
-  if [ "${update_mode}" = "latest" ]; then
-    # Inkl. Pre-Releases (alpha, beta, rc)
-    target_version=$(git tag -l --sort=-version:refname | head -1)
-  else
-    # Nur stable (keine alpha/beta/rc)
-    target_version=$(git tag -l --sort=-version:refname | grep -v -E '(alpha|beta|rc)' | head -1)
+  local has_tags=false
+
+  # Prüfe ob Tags vorhanden sind
+  if git tag -l --sort=-version:refname | grep -q .; then
+    has_tags=true
   fi
 
-  # Fallback zu aktuellen commit
-  [ -z "${target_version}" ] && target_version=$(git rev-parse --short HEAD)
+  if [ "${has_tags}" = "true" ]; then
+    if [ "${update_mode}" = "latest" ]; then
+      # Inkl. Pre-Releases (alpha, beta, rc)
+      target_version=$(git tag -l --sort=-version:refname | head -1)
+    else
+      # Nur stable (keine alpha/beta/rc)
+      target_version=$(git tag -l --sort=-version:refname | grep -v -E '(alpha|beta|rc)' | head -1)
+    fi
+  else
+    # Keine Tags: Verwende Short-Commit-Hash
+    target_version=$(git rev-parse --short HEAD)
+  fi
 
   # Ist es eine neue Version?
   if [ "${target_version}" != "${current_version}" ]; then
@@ -447,16 +456,27 @@ send_ha_notification() {
     return 1
   fi
 
-  # Escape JSON strings
-  local escaped_title="$(printf '%s' "${title}" | sed 's/"/\\"/g' | sed "s/'/\\'/g")"
-  local escaped_message="$(printf '%s' "${message}" | sed 's/"/\\"/g' | sed "s/'/\\'/g")"
+  # Use jq for proper JSON escaping if available
+  local json_payload
+  if command -v jq >/dev/null 2>&1; then
+    json_payload=$(jq -n \
+      --arg message "${message}" \
+      --arg title "${title}" \
+      --arg notification_id "${notification_id}" \
+      '{message: $message, title: $title, notification_id: $notification_id}')
+  else
+    # Fallback: Escape manually for basic JSON (only quotes and backslashes)
+    local escaped_title="$(printf '%s' "${title}" | sed 's/\\/\\\\/g' | sed 's/"/\\"/g')"
+    local escaped_message="$(printf '%s' "${message}" | sed 's/\\/\\\\/g' | sed 's/"/\\"/g')"
+    json_payload="{\"message\":\"${escaped_message}\",\"title\":\"${escaped_title}\",\"notification_id\":\"${notification_id}\"}"
+  fi
 
   # Send notification via Supervisor API
   local response
   response=$(curl -sSL -w "\n%{http_code}" -X POST \
     -H "Authorization: Bearer ${SUPERVISOR_TOKEN}" \
     -H "Content-Type: application/json" \
-    -d "{\"message\":\"${escaped_message}\",\"title\":\"${escaped_title}\",\"notification_id\":\"${notification_id}\"}" \
+    -d "${json_payload}" \
     http://supervisor/core/api/services/persistent_notification/create 2>/dev/null || echo "000")
 
   local http_code

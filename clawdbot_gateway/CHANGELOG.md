@@ -7,6 +7,26 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [1.0.3] - 2026-01-25
+
+### Fixed
+- **Update System**: Fixed git checkout failure when repository has no tags
+  - System now properly detects if tags exist before attempting to use them
+  - Falls back to commit hashes when no tags are available
+  - Prevents update loop caused by invalid git references
+  - Resolves `failed to checkout` errors during auto-update process
+- **HA Notifications**: Fixed HTTP 400 errors when sending notifications
+  - Implemented proper JSON escaping using jq when available
+  - Enhanced fallback escaping for systems without jq (backslashes + quotes)
+  - Notifications now reliably inform users about updates and system events
+
+### Technical Details
+- Modified `check_for_updates()` to explicitly check for tag existence
+- Updated `send_ha_notification()` to use jq for robust JSON encoding
+- Both fixes ensure compatibility with repositories using commit hashes or tags
+
+---
+
 ## [1.0.2] - 2026-01-25
 
 ### Fixed
