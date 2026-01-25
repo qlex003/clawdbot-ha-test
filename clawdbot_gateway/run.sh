@@ -5,7 +5,7 @@ log() {
   printf "[addon] %s\n" "$*" >&2
 }
 
-log "run.sh version=2026-01-25-v1.0.15-add-api-key-config"
+log "run.sh version=2026-01-25-v1.0.16-fix-variable-order"
 
 # ============================================================================
 # PHASE 2: Neue Verzeichnisstruktur (v1.0.0)
@@ -933,12 +933,6 @@ if [ -f "${CONFIG_PATH}" ]; then
   else
     log "failed to normalize gateway.mode (invalid config?)"
   fi
-
-  # Apply API keys from add-on configuration
-  api_key_status="$(apply_addon_api_keys "${ANTHROPIC_API_KEY}" "${OPENAI_API_KEY}" "${PRIMARY_MODEL}" || true)"
-  if [ "${api_key_status}" = "updated" ]; then
-    log "API keys applied from add-on configuration"
-  fi
 fi
 
 LOG_FILE="/tmp/clawdbot/clawdbot.log"
@@ -995,6 +989,14 @@ if [ "${EASY_SETUP_UI_OPT}" != "true" ]; then
 fi
 SETUP_PROXY_HOST="0.0.0.0"
 SETUP_PROXY_PORT="8099"
+
+# Apply API keys from add-on configuration to Clawdbot config
+if [ -f "${CONFIG_PATH}" ]; then
+  api_key_status="$(apply_addon_api_keys "${ANTHROPIC_API_KEY}" "${OPENAI_API_KEY}" "${PRIMARY_MODEL}" || true)"
+  if [ "${api_key_status}" = "updated" ]; then
+    log "API keys applied from add-on configuration"
+  fi
+fi
 
 ALLOW_UNCONFIGURED=()
 if [ ! -f "${CONFIG_PATH}" ]; then

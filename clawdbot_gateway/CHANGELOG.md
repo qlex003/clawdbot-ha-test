@@ -7,6 +7,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [1.0.16] - 2026-01-25
+
+### Fixed
+- **Variable Order Bug**: Fixed "unbound variable" crash when API keys were not configured
+  - **Issue**: Script crashed with "ANTHROPIC_API_KEY: unbound variable" error
+  - **Root cause**: `apply_addon_api_keys()` was called before variables were read from `/data/options.json`
+  - **Solution**: Moved API key application after Gateway Options section (after line 970)
+  - Script now reads API keys first, then applies them to config
+
+### Technical Details
+- Moved API key application from line 938 to line 993 in run.sh
+- Ensures `ANTHROPIC_API_KEY`, `OPENAI_API_KEY`, `PRIMARY_MODEL` are defined before use
+- Compatible with Bash `set -u` (treat unset variables as errors)
+
+---
+
 ## [1.0.15] - 2026-01-25
 
 ### Added
