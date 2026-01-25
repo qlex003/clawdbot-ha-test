@@ -2,10 +2,10 @@
 set -euo pipefail
 
 log() {
-  printf "[addon] %s\n" "$*"
+  printf "[addon] %s\n" "$*" >&2
 }
 
-log "run.sh version=2026-01-25-v1.0.5-fix-version-comparison"
+log "run.sh version=2026-01-25-v1.0.6-fix-log-stdout"
 
 # ============================================================================
 # PHASE 2: Neue Verzeichnisstruktur (v1.0.0)
@@ -249,7 +249,7 @@ check_for_updates() {
 
     # If base tag matches target_version, we're ahead - no update needed
     if [ "${current_base_tag}" = "${target_version}" ]; then
-      log "current version ${current_version} is ahead of latest tag ${target_version}"
+      log "current version ${current_version} is ahead of latest tag ${target_version}, staying on current"
       return 1
     fi
   fi

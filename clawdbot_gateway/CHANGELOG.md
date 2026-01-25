@@ -7,6 +7,25 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [1.0.6] - 2026-01-25
+
+### Fixed
+- **CRITICAL: Log Output Redirection**: Fixed `log()` function writing to stdout instead of stderr
+  - **Root cause**: `check_for_updates()` output was captured into `NEW_VERSION` variable
+  - Log messages from within the function were incorrectly treated as version strings
+  - This caused error messages like `"[addon] current version...ahead of latest tag"` to be used as version numbers
+  - Result: Build failures, HA notification errors, and crash loops
+  - **Solution**: Redirected all `log()` output to stderr (`>&2`)
+  - Now only actual version strings (via `echo`) are captured, not log messages
+
+### Technical Details
+- Changed `log()` function in line 5 from `printf "[addon] %s\n" "$*"` to `printf "[addon] %s\n" "$*" >&2`
+- This ensures `check_for_updates()` in line 705 only captures version numbers via `echo`, not log messages
+- All diagnostic messages now properly go to stderr and won't interfere with function return values
+- Fixed the cascading failures: version detection → build errors → HA notification failures → watchdog crashes
+
+---
+
 ## [1.0.5] - 2026-01-25
 
 ### Fixed
