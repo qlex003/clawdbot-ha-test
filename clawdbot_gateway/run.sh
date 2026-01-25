@@ -5,7 +5,7 @@ log() {
   printf "[addon] %s\n" "$*" >&2
 }
 
-log "run.sh version=2026-01-25-v1.0.7-fix-version-detection"
+log "run.sh version=2026-01-25-v1.0.8-fix-cache-scripts"
 
 # ============================================================================
 # PHASE 2: Neue Verzeichnisstruktur (v1.0.0)
@@ -348,7 +348,7 @@ download_and_build_version() {
 
   # In Cache verschieben
   mkdir -p "${build_dir}"
-  cp -r dist node_modules package.json "${build_dir}/" || {
+  cp -r dist node_modules scripts package.json "${build_dir}/" || {
     log "failed to cache build"
     rm -rf "${temp_dir}"
     return 1

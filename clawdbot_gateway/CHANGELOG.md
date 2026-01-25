@@ -7,6 +7,23 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [1.0.8] - 2026-01-25
+
+### Fixed
+- **CRITICAL: Missing scripts/ in Cache**: Fixed incomplete cache that prevented gateway startup
+  - **Root cause**: `download_and_build_version()` only copied `dist node_modules package.json`
+  - Missing `scripts/` directory caused `Cannot find module 'scripts/run-node.mjs'` error
+  - Gateway and setup commands failed immediately after activation
+  - **Solution**: Added `scripts` to cache copy in line 351
+  - Now copies: `dist node_modules scripts package.json ui/` to cache
+
+### Technical Details
+- Line 351: Changed `cp -r dist node_modules package.json` to `cp -r dist node_modules scripts package.json`
+- This ensures all runtime dependencies are cached, not just built output
+- Fixes startup errors for `clawdbot setup` and `clawdbot gateway` commands
+
+---
+
 ## [1.0.7] - 2026-01-25
 
 ### Fixed
