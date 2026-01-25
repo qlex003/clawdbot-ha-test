@@ -7,6 +7,28 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [1.0.17] - 2025-01-25
+
+### Fixed
+- **Wizard Start Error**: Removed invalid `flow` property from wizard.start default params
+  - **Issue**: Wizard failed with "unexpected property 'flow'" error
+  - **Root cause**: Default params included `{ mode: 'local', flow: 'quickstart' }` but Gateway doesn't accept `flow`
+  - **Solution**: Changed default to `{ mode: 'local' }` only
+- **Ingress API Paths**: Setup UI API calls now work correctly through Home Assistant Ingress
+  - **Issue**: API calls to `/__setup/api/...` returned 404 when accessed via Ingress
+  - **Root cause**: Absolute paths didn't include the Ingress path prefix
+  - **Solution**: Dynamic API base URL that detects and includes Ingress prefix
+- **Service Worker Crash**: Added guard for HTTP (non-secure) contexts
+  - **Issue**: `TypeError: Cannot read properties of undefined (reading 'register')` in browser console
+  - **Root cause**: `navigator.serviceWorker` is undefined over HTTP (requires HTTPS)
+  - **Solution**: Added polyfill/shim that prevents crashes in HTTP contexts
+
+### Added
+- **HTTPS Warning**: Visual indicator when accessing Setup UI without HTTPS
+  - Shows "HTTPS empfohlen" pill when `window.isSecureContext === false`
+
+---
+
 ## [1.0.16] - 2026-01-25
 
 ### Fixed

@@ -267,6 +267,7 @@ const SETUP_HTML = `<!doctype html>
           <p>Einfaches Setup ohne SSH: ChatGPT/Codex OAuth oder API Keys setzen.</p>
         </div>
         <div class="pill" id="statusPill">Status wird geladen…</div>
+        <span id="httpsWarning" class="pill warn" style="display:none; margin-left: 8px;">HTTPS empfohlen</span>
       </div>
 
       <div class="card">
@@ -320,6 +321,20 @@ const SETUP_HTML = `<!doctype html>
     </div>
 
     <script>
+      // Service Worker guard for HTTP contexts (SW requires HTTPS)
+      if (typeof navigator !== 'undefined' && !navigator.serviceWorker) {
+        Object.defineProperty(navigator, 'serviceWorker', {
+          value: {
+            ready: Promise.resolve({ active: null }),
+            register: function() { return Promise.reject(new Error('Service Workers require HTTPS')); },
+            getRegistration: function() { return Promise.resolve(undefined); },
+            getRegistrations: function() { return Promise.resolve([]); },
+          },
+          writable: false,
+          configurable: false,
+        });
+      }
+
       const out = document.getElementById('out');
       const statusPill = document.getElementById('statusPill');
       const gatewayToken = document.getElementById('gatewayToken');
@@ -410,8 +425,15 @@ const SETUP_HTML = `<!doctype html>
         wizardHelper.appendChild(wrap);
       }
 
+      // Dynamic API base URL for Ingress compatibility
+      const apiBaseUrl = (function() {
+        var p = location.pathname;
+        var idx = p.indexOf('/__setup');
+        return idx >= 0 ? p.substring(0, idx) + '/__setup/api' : '/__setup/api';
+      })();
+
       async function api(path, opts) {
-        const res = await fetch('/__setup/api' + path, {
+        const res = await fetch(apiBaseUrl + path, {
           headers: { 'content-type': 'application/json' },
           ...opts,
         });
@@ -527,6 +549,12 @@ const SETUP_HTML = `<!doctype html>
         } finally { refreshPill(); }
       });
 
+      // Show HTTPS warning if not in secure context
+      if (window.isSecureContext === false) {
+        var w = document.getElementById('httpsWarning');
+        if (w) w.style.display = 'inline-block';
+      }
+
       refreshPill();
       setInterval(refreshPill, 5000);
     </script>
@@ -572,7 +600,7 @@ async function handleSetupApi(req, res) {
     const startParams =
       parsed.ok && parsed.value && parsed.value.params && typeof parsed.value.params === 'object'
         ? parsed.value.params
-        : { mode: 'local', flow: 'quickstart' };
+        : { mode: 'local' };
     const r = await gatewayCall('wizard.start', startParams, { token, timeoutMs: 60000 });
     return sendJson(res, r.ok ? 200 : 500, {
       ok: r.ok,
