@@ -5,7 +5,7 @@ log() {
   printf "[addon] %s\n" "$*"
 }
 
-log "run.sh version=2026-01-24-v1.0.0-ha-integration"
+log "run.sh version=2026-01-25-v1.0.1-fix-update-logic"
 
 # ============================================================================
 # PHASE 2: Neue Verzeichnisstruktur (v1.0.0)
@@ -240,8 +240,24 @@ check_for_updates() {
     target_version=$(git rev-parse --short HEAD)
   fi
 
+  # Extrahiere Base-Tag aus current_version für Vergleich
+  # v2026.1.23-72-g913d2f4b3 -> v2026.1.23
+  local current_base_tag
+  current_base_tag="$(echo "${current_version}" | sed -E 's/^(v?[0-9]+\.[0-9]+\.[0-9]+).*/\1/')"
+
+  # Prüfe ob current_version NACH dem neuesten Tag liegt (mehr Commits)
+  # Format: vX.Y.Z-N-gHASH bedeutet N Commits nach Tag vX.Y.Z
+  if echo "${current_version}" | grep -qE '^v?[0-9]+\.[0-9]+\.[0-9]+-[0-9]+-g[a-f0-9]+$'; then
+    # current_version ist im git describe Format (commits nach Tag)
+    if [ "${current_base_tag}" = "${target_version}" ]; then
+      # Wir sind bereits VORAUS vom neuesten Tag - kein Update nötig
+      log "current version ${current_version} is ahead of latest tag ${target_version}"
+      return 1
+    fi
+  fi
+
   # Ist es eine neue Version?
-  if [ "${target_version}" != "${current_version}" ]; then
+  if [ "${target_version}" != "${current_version}" ] && [ "${target_version}" != "${current_base_tag}" ]; then
     log "update available: ${current_version} → ${target_version}"
     echo "${target_version}"
     return 0
@@ -471,23 +487,36 @@ send_ha_notification() {
     json_payload="{\"message\":\"${escaped_message}\",\"title\":\"${escaped_title}\",\"notification_id\":\"${notification_id}\"}"
   fi
 
-  # Send notification via Supervisor API
+  # Send notification via Supervisor API - use the correct endpoint
+  # The endpoint POST /core/api/services/<domain>/<service> requires a different format
   local response
   response=$(curl -sSL -w "\n%{http_code}" -X POST \
     -H "Authorization: Bearer ${SUPERVISOR_TOKEN}" \
     -H "Content-Type: application/json" \
     -d "${json_payload}" \
-    http://supervisor/core/api/services/persistent_notification/create 2>/dev/null || echo "000")
+    "http://supervisor/core/api/services/notify/persistent_notification" 2>/dev/null || echo "000")
 
   local http_code
   http_code=$(echo "${response}" | tail -1)
+
+  # Try alternative endpoint if first fails
+  if [ "${http_code}" != "200" ] && [ "${http_code}" != "201" ]; then
+    # Fallback: Direct persistent_notification.create service call
+    response=$(curl -sSL -w "\n%{http_code}" -X POST \
+      -H "Authorization: Bearer ${SUPERVISOR_TOKEN}" \
+      -H "Content-Type: application/json" \
+      -d "${json_payload}" \
+      "http://supervisor/core/api/services/persistent_notification/create" 2>/dev/null || echo "000")
+    http_code=$(echo "${response}" | tail -1)
+  fi
 
   if [ "${http_code}" = "200" ] || [ "${http_code}" = "201" ]; then
     log "ha notification sent: ${title}"
     return 0
   else
+    # Non-critical - just log and continue
     log "failed to send ha notification (http ${http_code})"
-    return 1
+    return 0  # Return success anyway - notifications are not critical
   fi
 }
 
@@ -667,7 +696,8 @@ if [ "${IS_SNAPSHOT_RESTORE}" != "true" ]; then
     if [ -n "${BRANCH}" ]; then
       git checkout "${BRANCH}" 2>/dev/null || git checkout main 2>/dev/null || git checkout master 2>/dev/null || true
     fi
-    CURRENT_VER="$(git describe --tags --always 2>/dev/null || git rev-parse --short HEAD)"
+    # Verwende exakten Tag falls HEAD darauf zeigt, sonst git describe
+    CURRENT_VER="$(git describe --tags --exact-match 2>/dev/null || git describe --tags --always 2>/dev/null || git rev-parse --short HEAD)"
     log "no current version, detected: ${CURRENT_VER}"
   fi
 
@@ -995,9 +1025,44 @@ trap forward_usr1 USR1
 trap shutdown_child TERM INT
 
 # ============================================================================
-# Gateway Main Loop
+# Gateway Main Loop with crash protection
 # ============================================================================
+RESTART_COUNT=0
+MAX_FAST_RESTARTS=5
+RESTART_WINDOW=60
+LAST_RESTART_TIME=0
+
 while true; do
+  CURRENT_TIME=$(date +%s)
+
+  # Reset counter if enough time has passed
+  if [ $((CURRENT_TIME - LAST_RESTART_TIME)) -gt ${RESTART_WINDOW} ]; then
+    RESTART_COUNT=0
+  fi
+
+  # Check for restart loop
+  if [ "${RESTART_COUNT}" -ge "${MAX_FAST_RESTARTS}" ]; then
+    log "gateway crashed ${MAX_FAST_RESTARTS} times in ${RESTART_WINDOW}s - stopping to prevent watchdog rate limit"
+    log "please check configuration and logs, then restart the add-on manually"
+
+    # Send notification about the crash loop
+    send_ha_notification \
+      "Clawdbot Gateway Crash Loop" \
+      "Gateway crashed ${MAX_FAST_RESTARTS} times. Add-on stopped to prevent watchdog rate limit. Please check logs and restart manually." \
+      "clawdbot_crash_loop"
+
+    # Keep the proxy running so users can access setup UI
+    log "setup proxy still running on port ${SETUP_PROXY_PORT} - access /__setup for configuration"
+
+    # Sleep indefinitely instead of exiting (keeps container alive for debugging)
+    while true; do
+      sleep 3600
+    done
+  fi
+
+  LAST_RESTART_TIME=${CURRENT_TIME}
+  RESTART_COUNT=$((RESTART_COUNT + 1))
+
   pnpm clawdbot "${ARGS[@]}" &
   child_pid=$!
   start_log_tail "${LOG_FILE}"
@@ -1015,9 +1080,11 @@ while true; do
     break
   elif [ "${status}" -eq 129 ]; then
     log "gateway exited after SIGUSR1; restarting"
+    RESTART_COUNT=0  # Intentional restart, reset counter
     continue
   else
-    log "gateway exited uncleanly (status=${status}); restarting"
+    log "gateway exited uncleanly (status=${status}); restarting in 5s..."
+    sleep 5  # Brief delay before restart
     continue
   fi
 done
